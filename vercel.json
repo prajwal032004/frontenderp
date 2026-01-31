@@ -4,24 +4,12 @@
     {
       "src": "vercel_app.py",
       "use": "@vercel/python"
-    },
-    {
-      "src": "static/**",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/static/(.*)",
-      "dest": "/static/$1"
-    },
-    {
       "src": "/(.*)",
-      "dest": "app.py"
+      "dest": "vercel_app.py"
     }
-  ],
-  "env": {
-    "FLASK_APP": "vercel_app.py",
-    "PYTHONUNBUFFERED": "1"
-  }
+  ]
 }
