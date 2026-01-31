@@ -38,21 +38,18 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 login_manager.session_protection = 'basic'
 
-def get_api_headers(include_auth=True):
+def get_api_headers(include_auth=True, user_id=None):
     headers = {
         'Content-Type': 'application/json',
         'X-API-Key': BACKEND_API_KEY
     }
+    if include_auth and user_id:  # ✅ Only checks user_id parameter
+        headers['X-User-ID'] = str(user_id)
     return headers
 
 def api_request(method, endpoint, data=None, files=None, user_id=None):
-    """Make request to backend API"""
     url = f"{BACKEND_URL}{endpoint}"
-    headers = get_api_headers()
-    
-    # Add user ID to headers if provided
-    if user_id:
-        headers['X-User-ID'] = str(user_id)
+    headers = get_api_headers(user_id=user_id)  # ✅ Passes user_id directly
     
     try:
         if method == 'GET':
@@ -100,8 +97,7 @@ class User(UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
-    """Load user from backend API"""
-    result = api_request('GET', f'/api/users/{user_id}')
+    result = api_request('GET', f'/api/users/{user_id}', user_id=None)  # ✅ No recursion!
     if result.get('success') and result.get('user'):
         return User(result['user'])
     return None
@@ -970,8 +966,10 @@ def api_unread_notifications():
     return jsonify({'count': 0})
 
 @app.route('/debug-files')
+@login_required
+@admin_required
 def debug_files():
-    """Temporarily check what files exist on Vercel"""
+    """Admin-only file listing"""
     current_dir = os.path.dirname(os.path.abspath(__file__))
     files = []
     for root, dirs, filenames in os.walk(current_dir):
