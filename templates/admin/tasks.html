@@ -1,568 +1,240 @@
-{% extends "admin/base.html" %} {% block page_title %}Task Management{% endblock
-%} {% block content %}
-<style>
-  /* Task Grid Styling */
-  .task-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .task-card {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-  .task-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-    border-color: rgba(79, 70, 229, 0.3);
-  }
-
-  /* Priority Indicators */
-  .priority-strip {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    border-radius: 4px 0 0 4px;
-  }
-  .p-high {
-    background: var(--danger);
-  }
-  .p-medium {
-    background: var(--warning);
-  }
-  .p-low {
-    background: var(--success);
-  }
-
-  /* Badges */
-  .task-badge {
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .badge-urgent {
-    background: #fef2f2;
-    color: #dc2626;
-    border: 1px solid #fca5a5;
-  }
-  .badge-normal {
-    background: #f1f5f9;
-    color: #475569;
-    border: 1px solid #e2e8f0;
-  }
-
-  /* Modal Styling */
-  .modal-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(4px);
-    z-index: 1000;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-  .modal-backdrop.open {
-    display: flex;
-    opacity: 1;
-  }
-
-  .modal-content {
-    background: white;
-    width: 90%;
-    max-width: 600px;
-    border-radius: 20px;
-    padding: 2rem;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    transform: scale(0.95);
-    transition: transform 0.3s ease;
-    max-height: 90vh;
-    overflow-y: auto;
-  }
-  .modal-backdrop.open .modal-content {
-    transform: scale(1);
-  }
-
-  /* Form Elements */
-  .form-group {
-    margin-bottom: 1.25rem;
-  }
-  .form-label {
-    display: block;
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: var(--text-main);
-  }
-  .form-control {
-    width: 100%;
-    padding: 0.8rem 1rem;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    font-family: inherit;
-    font-size: 0.95rem;
-    transition: 0.2s;
-  }
-  .form-control:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-  }
-
-  /* File Upload */
-  .file-upload-wrapper {
-    border: 2px dashed var(--border);
-    border-radius: 12px;
-    padding: 1.5rem;
-    text-align: center;
-    cursor: pointer;
-    transition: 0.2s;
-    background: #f8fafc;
-  }
-  .file-upload-wrapper:hover {
-    border-color: var(--primary);
-    background: #eef2ff;
-  }
-</style>
-
-<!-- Action Bar -->
-<div
-  style="
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-  "
->
-  <div>
-    <h3 style="margin-bottom: 0.2rem">Active Tasks</h3>
-    <p style="color: var(--text-secondary); font-size: 0.9rem">
-      Manage assignments and deadlines
-    </p>
-  </div>
-  <button onclick="toggleModal(true)" class="btn btn-primary">
-    <i class="ri-add-line"></i> Create Task
+{% extends "admin_base.html" %} {% block title %}Task Manager{% endblock %} {%
+block page_title %}Manage Tasks{% endblock %} {% block content %}
+<div x-data="{ showCreate: false }">
+  <button
+    @click="showCreate = !showCreate"
+    class="btn"
+    style="background: var(--primary); color: black; margin-bottom: 2rem"
+  >
+    <i class="fas fa-plus"></i> Create New Task
   </button>
-</div>
 
-<!-- Task Grid -->
-<div class="task-grid">
-  {% for task in tasks %}
-  <div class="task-card">
-    <!-- Priority Strip -->
-    <div
-      class="priority-strip p-{{ 'high' if task.priority in ['HIGH', 'URGENT'] else 'medium' if task.priority == 'MEDIUM' else 'low' }}"
-    ></div>
+  <!-- Create Form -->
+  <div x-show="showCreate" x-collapse style="margin-bottom: 2rem">
+    <div class="glass-panel" style="padding: 2rem">
+      <h3 style="margin-bottom: 1.5rem">New Task Details</h3>
+      <form
+        action="{{ url_for('admin_tasks') }}"
+        method="POST"
+        enctype="multipart/form-data"
+      >
+        <div
+          style="
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+          "
+        >
+          <div>
+            <label
+              style="
+                display: block;
+                color: var(--text-muted);
+                margin-bottom: 5px;
+              "
+              >Task Title</label
+            >
+            <input
+              type="text"
+              name="title"
+              required
+              class="form-input"
+              style="
+                width: 100%;
+                padding: 10px;
+                background: rgba(0, 0, 0, 0.2);
+                border: 1px solid var(--glass-border);
+                border-radius: 8px;
+                color: white;
+              "
+            />
+          </div>
+          <div>
+            <label
+              style="
+                display: block;
+                color: var(--text-muted);
+                margin-bottom: 5px;
+              "
+              >Deadline</label
+            >
+            <input
+              type="date"
+              name="deadline"
+              required
+              class="form-input"
+              style="
+                width: 100%;
+                padding: 10px;
+                background: rgba(0, 0, 0, 0.2);
+                border: 1px solid var(--glass-border);
+                border-radius: 8px;
+                color: white;
+              "
+            />
+          </div>
+        </div>
 
-    <div
-      style="
-        display: flex;
-        justify-content: space-between;
-        align-items: start;
-        margin-bottom: 1rem;
-      "
-    >
-      <span
-        class="task-badge {% if task.priority == 'URGENT' %}badge-urgent{% else %}badge-normal{% endif %}"
-      >
-        {{ task.priority }}
-      </span>
-      {% if task.deadline %}
-      <span
-        style="
-          font-size: 0.8rem;
-          color: var(--text-secondary);
-          display: flex;
-          align-items: center;
-          gap: 4px;
-        "
-      >
-        <i class="ri-calendar-event-line"></i> {{ task.deadline }}
-      </span>
-      {% endif %}
+        <div style="margin-bottom: 1.5rem">
+          <label
+            style="display: block; color: var(--text-muted); margin-bottom: 5px"
+            >Description</label
+          >
+          <textarea
+            name="description"
+            rows="3"
+            required
+            style="
+              width: 100%;
+              padding: 10px;
+              background: rgba(0, 0, 0, 0.2);
+              border: 1px solid var(--glass-border);
+              border-radius: 8px;
+              color: white;
+            "
+          ></textarea>
+        </div>
+
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+          "
+        >
+          <div>
+            <label
+              style="
+                display: block;
+                color: var(--text-muted);
+                margin-bottom: 5px;
+              "
+              >Priority</label
+            >
+            <select
+              name="priority"
+              style="
+                width: 100%;
+                padding: 10px;
+                background: rgba(0, 0, 0, 0.2);
+                border: 1px solid var(--glass-border);
+                border-radius: 8px;
+                color: white;
+              "
+            >
+              <option value="LOW">Low</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="HIGH">High</option>
+            </select>
+          </div>
+          <div>
+            <label
+              style="
+                display: block;
+                color: var(--text-muted);
+                margin-bottom: 5px;
+              "
+              >Category</label
+            >
+            <select
+              name="category"
+              style="
+                width: 100%;
+                padding: 10px;
+                background: rgba(0, 0, 0, 0.2);
+                border: 1px solid var(--glass-border);
+                border-radius: 8px;
+                color: white;
+              "
+            >
+              <option value="Development">Development</option>
+              <option value="Design">Design</option>
+              <option value="Research">Research</option>
+              <option value="HR">HR</option>
+            </select>
+          </div>
+          <div>
+            <label
+              style="
+                display: block;
+                color: var(--text-muted);
+                margin-bottom: 5px;
+              "
+              >Assigned To (ID)</label
+            >
+            <input
+              type="text"
+              name="assigned_to"
+              placeholder="Leave empty for all"
+              style="
+                width: 100%;
+                padding: 10px;
+                background: rgba(0, 0, 0, 0.2);
+                border: 1px solid var(--glass-border);
+                border-radius: 8px;
+                color: white;
+              "
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="btn"
+          style="background: var(--success); color: white"
+        >
+          Publish Task
+        </button>
+      </form>
     </div>
+  </div>
 
-    <h4 style="font-size: 1.2rem; margin-bottom: 0.5rem; line-height: 1.4">
-      {{ task.title }}
-    </h4>
-    <p
-      style="
-        color: var(--text-secondary);
-        font-size: 0.9rem;
-        line-height: 1.6;
-        margin-bottom: 1.5rem;
-        flex: 1;
-      "
-    >
-      {{ task.description or 'No description provided.' }}
-    </p>
-
-    <!-- Attachment Link -->
-    {% if task.file_url %}
-    <div style="margin-bottom: 1rem">
-      <a
-        href="{{ url_for('uploaded_file', filename='tasks/' + task.file_url) }}"
-        target="_blank"
-        class="btn btn-secondary"
-        style="
-          padding: 0.4rem 0.8rem;
-          font-size: 0.8rem;
-          width: 100%;
-          justify-content: center;
-        "
-      >
-        <i class="ri-attachment-line"></i> View Attachment
-      </a>
-    </div>
-    {% endif %}
-
+  <!-- Task List -->
+  <h3 style="margin-bottom: 1rem">Active Tasks</h3>
+  <div style="display: grid; gap: 1rem">
+    {% if tasks %} {% for task in tasks %}
     <div
+      class="glass-panel"
       style="
-        border-top: 1px solid var(--border);
-        padding-top: 1rem;
-        margin-top: auto;
+        padding: 1rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
       "
     >
-      <div style="display: flex; align-items: center; gap: 8px">
-        <div
-          style="
-            width: 28px;
-            height: 28px;
-            background: var(--primary-light);
-            color: var(--primary);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-          "
-        >
-          <i class="ri-user-line"></i>
+      <div>
+        <div style="display: flex; align-items: center; gap: 10px">
+          <h4 style="margin: 0">{{ task.title }}</h4>
+          <span
+            style="font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; background: {{ 'var(--danger)' if task.priority == 'HIGH' else 'rgba(255,255,255,0.1)' }};"
+            >{{ task.priority }}</span
+          >
         </div>
-        <span
-          style="font-size: 0.85rem; font-weight: 600; color: var(--text-main)"
-        >
-          {{ "All Interns" if task.assigned_to == 'ALL' else task.assigned_to }}
-        </span>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 5px 0 0">
+          Due: {{ task.deadline }} &bull; {{ task.category }}
+        </p>
       </div>
-
       <form
         action="{{ url_for('delete_task', task_id=task.id) }}"
         method="POST"
         onsubmit="return confirm('Delete this task?');"
       >
         <button
-          class="btn btn-danger"
-          style="padding: 0.4rem 0.8rem; font-size: 0.85rem"
+          type="submit"
+          class="btn"
+          style="background: rgba(239, 68, 68, 0.2); color: var(--danger)"
         >
-          <i class="ri-delete-bin-line"></i>
+          <i class="fas fa-trash"></i>
         </button>
       </form>
     </div>
-
-    <!-- Submission Count -->
-    {% if task.submission_count > 0 %}
-    <div
-      style="
-        position: absolute;
-        bottom: 1.5rem;
-        right: 4rem;
-        font-size: 0.8rem;
-        color: var(--success);
-        font-weight: 600;
-      "
-    >
-      {{ task.submission_count }} Subs
+    {% endfor %} {% else %}
+    <div style="text-align: center; color: var(--text-muted); padding: 2rem">
+      No active tasks.
     </div>
     {% endif %}
   </div>
-  {% else %}
-  <div
-    style="
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 4rem;
-      color: var(--text-light);
-      border: 2px dashed var(--border);
-      border-radius: var(--radius);
-    "
-  >
-    <i
-      class="ri-task-line"
-      style="font-size: 3rem; margin-bottom: 1rem; display: block; opacity: 0.5"
-    ></i>
-    <p>No tasks found. Create one to get started.</p>
-  </div>
-  {% endfor %}
 </div>
-
-<!-- Create Task Modal -->
-<div id="createModal" class="modal-backdrop">
-  <div class="modal-content">
-    <div
-      style="
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-      "
-    >
-      <h3 style="margin: 0">Create New Task</h3>
-      <button
-        onclick="toggleModal(false)"
-        style="
-          background: none;
-          border: none;
-          font-size: 1.5rem;
-          cursor: pointer;
-          color: var(--text-secondary);
-        "
-      >
-        <i class="ri-close-line"></i>
-      </button>
-    </div>
-
-    <form method="POST" id="taskForm">
-      <div class="form-group">
-        <label class="form-label"
-          >Task Title <span style="color: var(--danger)">*</span></label
-        >
-        <input
-          type="text"
-          name="title"
-          class="form-control"
-          placeholder="e.g. Q3 Research Report"
-          required
-        />
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Description</label>
-        <textarea
-          name="description"
-          class="form-control"
-          rows="4"
-          placeholder="Detailed instructions..."
-        ></textarea>
-      </div>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem">
-        <div class="form-group">
-          <label class="form-label"
-            >Assign To <span style="color: var(--danger)">*</span></label
-          >
-          <select name="assigned_to" class="form-control" required>
-            <option value="ALL">All Interns</option>
-            <optgroup label="Roles">
-              {% for role in roles %}
-              <option value="{{ role }}">{{ role }}s</option>
-              {% endfor %}
-            </optgroup>
-            <optgroup label="Individuals">
-              {% for intern in interns %}
-              <option value="{{ intern.intern_id }}">
-                {{ intern.full_name }}
-              </option>
-              {% endfor %}
-            </optgroup>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Deadline</label>
-          <input type="date" name="deadline" class="form-control" />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Priority</label>
-        <div style="display: flex; gap: 10px">
-          <label style="flex: 1; cursor: pointer">
-            <input
-              type="radio"
-              name="priority"
-              value="LOW"
-              style="display: none"
-              onchange="updatePriority(this)"
-            />
-            <div
-              class="priority-option"
-              style="
-                text-align: center;
-                padding: 0.6rem;
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                font-size: 0.9rem;
-              "
-            >
-              Low
-            </div>
-          </label>
-          <label style="flex: 1; cursor: pointer">
-            <input
-              type="radio"
-              name="priority"
-              value="MEDIUM"
-              checked
-              style="display: none"
-              onchange="updatePriority(this)"
-            />
-            <div
-              class="priority-option active"
-              style="
-                text-align: center;
-                padding: 0.6rem;
-                border: 1px solid var(--primary);
-                background: var(--primary-light);
-                color: var(--primary);
-                border-radius: 8px;
-                font-size: 0.9rem;
-                font-weight: 600;
-              "
-            >
-              Medium
-            </div>
-          </label>
-          <label style="flex: 1; cursor: pointer">
-            <input
-              type="radio"
-              name="priority"
-              value="HIGH"
-              style="display: none"
-              onchange="updatePriority(this)"
-            />
-            <div
-              class="priority-option"
-              style="
-                text-align: center;
-                padding: 0.6rem;
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                font-size: 0.9rem;
-              "
-            >
-              High
-            </div>
-          </label>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Attachment</label>
-        <input
-          type="file"
-          id="taskFileInput"
-          accept=".pdf,.doc,.docx,.txt,.zip"
-          style="display: none"
-        />
-        <input type="hidden" name="file_data" id="fileData" />
-
-        <div
-          class="file-upload-wrapper"
-          onclick="document.getElementById('taskFileInput').click()"
-        >
-          <i
-            class="ri-upload-cloud-2-line"
-            style="font-size: 2rem; color: var(--primary)"
-          ></i>
-          <p
-            style="
-              margin: 0.5rem 0 0;
-              color: var(--text-secondary);
-              font-size: 0.9rem;
-            "
-          >
-            Click to upload document
-          </p>
-          <p
-            id="fileName"
-            style="
-              font-size: 0.8rem;
-              color: var(--success);
-              font-weight: 600;
-              margin-top: 5px;
-            "
-          ></p>
-        </div>
-      </div>
-
-      <div style="margin-top: 2rem">
-        <button
-          type="submit"
-          class="btn btn-primary"
-          style="width: 100%; justify-content: center; padding: 1rem"
-        >
-          Create Assignment
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<script>
-  // Modal Logic
-  function toggleModal(show) {
-    const modal = document.getElementById("createModal");
-    if (show) {
-      modal.style.display = "flex";
-      setTimeout(() => modal.classList.add("open"), 10);
-    } else {
-      modal.classList.remove("open");
-      setTimeout(() => (modal.style.display = "none"), 300);
-    }
-  }
-
-  // Custom Radio Button Logic
-  function updatePriority(radio) {
-    document.querySelectorAll(".priority-option").forEach((el) => {
-      el.style.borderColor = "var(--border)";
-      el.style.background = "white";
-      el.style.color = "inherit";
-      el.style.fontWeight = "400";
-    });
-    const selected = radio.nextElementSibling;
-    selected.style.borderColor = "var(--primary)";
-    selected.style.background = "var(--primary-light)";
-    selected.style.color = "var(--primary)";
-    selected.style.fontWeight = "600";
-  }
-
-  // File Upload Handler (Base64)
-  document
-    .getElementById("taskFileInput")
-    .addEventListener("change", function (e) {
-      const file = e.target.files[0];
-      if (file) {
-        if (file.size > 16 * 1024 * 1024) {
-          alert("File too large. Max 16MB.");
-          this.value = "";
-          return;
-        }
-        const reader = new FileReader();
-        reader.onload = function (event) {
-          document.getElementById("fileData").value = event.target.result;
-          document.getElementById("fileName").innerHTML =
-            `<i class="ri-file-check-line"></i> ${file.name}`;
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-</script>
 {% endblock %}

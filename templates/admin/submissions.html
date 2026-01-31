@@ -1,104 +1,138 @@
-{% extends "admin/base.html" %} {% block page_title %}Submission Reviews{%
-endblock %} {% block content %}
-<div class="card" style="padding: 0">
-  <div class="table-container">
-    <table>
-      <thead>
-        <tr>
-          <th>Candidate</th>
-          <th>Task Details</th>
-          <th>Submitted At</th>
-          <th>Deliverable</th>
-          <th style="text-align: right">Review</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for sub in submissions %}
-        <tr>
-          <td>
-            <div style="display: flex; align-items: center; gap: 10px">
-              <img
-                src="{{ url_for('static', filename='uploads/profiles/' + sub.photo_url) if sub.photo_url else 'https://ui-avatars.com/api/?name=' + sub.full_name }}"
-                style="
-                  width: 36px;
-                  height: 36px;
-                  border-radius: 50%;
-                  object-fit: cover;
-                "
-              />
-              <div>
-                <div style="font-weight: 600">{{ sub.full_name }}</div>
-                <div style="font-size: 0.75rem; color: var(--text-secondary)">
-                  {{ sub.intern_id }}
-                </div>
+{% extends "admin_base.html" %} {% block title %}Submissions{% endblock %} {%
+block page_title %}Review Work{% endblock %} {% block content %}
+<div class="glass-panel" style="padding: 0; overflow: hidden">
+  <table style="width: 100%; border-collapse: collapse">
+    <thead>
+      <tr style="background: rgba(255, 255, 255, 0.05); text-align: left">
+        <th style="padding: 1rem">Intern</th>
+        <th style="padding: 1rem">Task</th>
+        <th style="padding: 1rem">Submitted At</th>
+        <th style="padding: 1rem">File</th>
+        <th style="padding: 1rem">Status</th>
+        <th style="padding: 1rem">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if submissions %} {% for sub in submissions %}
+      <tr style="border-bottom: 1px solid var(--glass-border)">
+        <td style="padding: 1rem">{{ sub.intern_name }}</td>
+        <td style="padding: 1rem">{{ sub.task_title }}</td>
+        <td style="padding: 1rem; font-size: 0.9rem; color: var(--text-muted)">
+          {{ sub.submitted_at }}
+        </td>
+        <td style="padding: 1rem">
+          {% if sub.file_url %}
+          <a
+            href="{{ sub.file_url }}"
+            target="_blank"
+            style="color: var(--primary)"
+            ><i class="fas fa-download"></i> File</a
+          >
+          {% else %} - {% endif %}
+        </td>
+        <td style="padding: 1rem">{{ sub.status }}</td>
+        <td style="padding: 1rem">
+          <div x-data="{ open: false }">
+            <button
+              @click="open = !open"
+              class="btn"
+              style="
+                background: var(--primary);
+                color: black;
+                font-size: 0.8rem;
+              "
+            >
+              Review
+            </button>
+
+            <!-- Review Modal Overlay -->
+            <div
+              x-show="open"
+              class="security-modal"
+              style="display: flex"
+              x-cloak
+            >
+              <div
+                class="glass-panel"
+                style="width: 400px; padding: 2rem; background: var(--bg-body)"
+                @click.away="open = false"
+              >
+                <h3>Review Submission</h3>
+                <p style="margin-bottom: 1rem; color: var(--text-muted)">
+                  {{ sub.content }}
+                </p>
+
+                <form
+                  action="{{ url_for('approve_submission', submission_id=sub.id) }}"
+                  method="POST"
+                >
+                  <label style="display: block; margin-bottom: 5px"
+                    >Feedback</label
+                  >
+                  <textarea
+                    name="feedback"
+                    rows="3"
+                    style="
+                      width: 100%;
+                      background: rgba(255, 255, 255, 0.1);
+                      border: 1px solid var(--glass-border);
+                      color: white;
+                      padding: 10px;
+                      border-radius: 8px;
+                    "
+                  ></textarea>
+
+                  <label style="display: block; margin: 10px 0 5px"
+                    >Grade</label
+                  >
+                  <select
+                    name="grade"
+                    style="
+                      width: 100%;
+                      background: rgba(255, 255, 255, 0.1);
+                      border: 1px solid var(--glass-border);
+                      color: white;
+                      padding: 10px;
+                      border-radius: 8px;
+                    "
+                  >
+                    <option value="A">A - Excellent</option>
+                    <option value="B">B - Good</option>
+                    <option value="C">C - Average</option>
+                    <option value="D">D - Poor</option>
+                  </select>
+
+                  <div style="margin-top: 1.5rem; display: flex; gap: 10px">
+                    <button
+                      type="submit"
+                      class="btn"
+                      style="flex: 1; background: var(--success); color: white"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      type="submit"
+                      formaction="{{ url_for('reject_submission', submission_id=sub.id) }}"
+                      class="btn"
+                      style="flex: 1; background: var(--danger); color: white"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
-          </td>
-          <td>
-            <div style="font-weight: 500">{{ sub.task_title }}</div>
-          </td>
-          <td style="color: var(--text-light); font-size: 0.85rem">
-            {{ sub.submitted_at }}
-          </td>
-          <td>
-            {% if sub.file_url %}
-            <a
-              href="{{ url_for('uploaded_file', filename='submissions/' + sub.file_url) }}"
-              target="_blank"
-              class="btn btn-outline"
-              style="padding: 0.4rem 0.8rem; font-size: 0.8rem"
-            >
-              <i class="ri-download-line"></i> Download
-            </a>
-            {% else %}
-            <span style="color: var(--text-light); font-style: italic"
-              >Text Only</span
-            >
-            {% endif %}
-          </td>
-          <td style="text-align: right">
-            <div style="display: flex; justify-content: flex-end; gap: 8px">
-              <form
-                action="{{ url_for('approve_submission', submission_id=sub.id) }}"
-                method="POST"
-              >
-                <button
-                  class="btn btn-primary"
-                  style="
-                    background: var(--success);
-                    padding: 0.4rem 0.8rem;
-                    font-size: 0.8rem;
-                  "
-                >
-                  <i class="ri-check-line"></i> Accept
-                </button>
-              </form>
-              <form
-                action="{{ url_for('reject_submission', submission_id=sub.id) }}"
-                method="POST"
-              >
-                <button
-                  class="btn btn-danger"
-                  style="padding: 0.4rem 0.8rem; font-size: 0.8rem"
-                >
-                  <i class="ri-close-line"></i> Reject
-                </button>
-              </form>
-            </div>
-          </td>
-        </tr>
-        {% else %}
-        <tr>
-          <td
-            colspan="5"
-            style="text-align: center; padding: 3rem; color: var(--text-light)"
-          >
-            No pending submissions to review.
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+          </div>
+        </td>
+      </tr>
+      {% endfor %} {% else %}
+      <tr>
+        <td colspan="6" style="padding: 2rem; text-align: center">
+          No pending submissions.
+        </td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
 </div>
 {% endblock %}

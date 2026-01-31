@@ -1,206 +1,85 @@
-{% extends "admin/base.html" %} {% block page_title %}Manage Interns{% endblock
-%} {% block content %}
-<style>
-  /* Table Enhancements */
-  .table-wrapper {
-    background: white;
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-  }
+{% extends "admin_base.html" %}
+{% block title %}Manage Interns{% endblock %}
+{% block page_title %}Intern Directory{% endblock %}
 
-  .table-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #f8fafc;
-  }
+{% block content %}
+<div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+    <form action="{{ url_for('admin_interns') }}" method="GET" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        <div>
+            <label style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 5px;">Search</label>
+            <input type="text" name="search" placeholder="Name, Email or ID..." value="{{ request.args.get('search', '') }}" 
+                   style="width: 100%; padding: 10px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 8px; color: white;">
+        </div>
+        <div>
+            <label style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 5px;">Department</label>
+            <select name="department" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 8px; color: white;">
+                <option value="all">All Departments</option>
+                <option value="IT" {% if request.args.get('department') == 'IT' %}selected{% endif %}>IT</option>
+                <option value="HR" {% if request.args.get('department') == 'HR' %}selected{% endif %}>HR</option>
+                <option value="Marketing" {% if request.args.get('department') == 'Marketing' %}selected{% endif %}>Marketing</option>
+            </select>
+        </div>
+        <div>
+            <label style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-bottom: 5px;">Status</label>
+            <select name="status" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 8px; color: white;">
+                <option value="all">All Status</option>
+                <option value="APPROVED" {% if request.args.get('status') == 'APPROVED' %}selected{% endif %}>Active</option>
+                <option value="PENDING" {% if request.args.get('status') == 'PENDING' %}selected{% endif %}>Pending</option>
+            </select>
+        </div>
+        <div style="display: flex; align-items: end;">
+            <button type="submit" class="btn" style="background: var(--primary); color: black; width: 100%; padding: 10px;"><i class="fas fa-filter"></i> Filter</button>
+        </div>
+    </form>
+</div>
 
-  .status-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 50px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .status-approved {
-    background: #ecfdf5;
-    color: #059669;
-    border: 1px solid #a7f3d0;
-  }
-  .status-pending {
-    background: #fffbeb;
-    color: #d97706;
-    border: 1px solid #fde68a;
-  }
-  .status-rejected {
-    background: #fef2f2;
-    color: #dc2626;
-    border: 1px solid #fecaca;
-  }
-
-  .intern-row:hover td {
-    background: #f8fafc;
-  }
-  .action-link {
-    color: var(--primary);
-    font-weight: 600;
-    font-size: 0.85rem;
-    text-decoration: none;
-    padding: 0.4rem 0.8rem;
-    border-radius: 6px;
-    transition: 0.2s;
-  }
-  .action-link:hover {
-    background: #eef2ff;
-  }
-</style>
-
-<!-- Main Table Container -->
-<div class="table-wrapper">
-  <div class="table-header">
-    <h3 style="margin: 0; font-size: 1.1rem; color: var(--text-main)">
-      <i
-        class="ri-team-line"
-        style="margin-right: 8px; color: var(--primary)"
-      ></i>
-      All Interns
-      <span
-        style="
-          color: var(--text-secondary);
-          font-weight: 400;
-          font-size: 0.9rem;
-        "
-        >({{ interns|length }} total)</span
-      >
-    </h3>
-
-    <!-- Optional: Simple Search Placeholder -->
-    <div style="position: relative">
-      <i
-        class="ri-search-line"
-        style="
-          position: absolute;
-          left: 10px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: var(--text-secondary);
-        "
-      ></i>
-      <input
-        type="text"
-        placeholder="Quick find..."
-        style="
-          padding: 0.5rem 1rem 0.5rem 2.2rem;
-          border: 1px solid var(--border);
-          border-radius: 8px;
-          font-size: 0.9rem;
-        "
-      />
-    </div>
-  </div>
-
-  {% if interns %}
-  <div class="table-container">
-    <table>
-      <thead>
-        <tr>
-          <th style="width: 30%">Intern Profile</th>
-          <th style="width: 15%">System ID</th>
-          <th style="width: 15%">USN</th>
-          <th style="width: 20%">Role</th>
-          <th style="width: 10%">Status</th>
-          <th style="width: 10%; text-align: right">Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for intern in interns %}
-        <tr class="intern-row">
-          <td>
-            <div style="display: flex; align-items: center; gap: 12px">
-              <div
-                style="
-                  width: 36px;
-                  height: 36px;
-                  background: var(--primary);
-                  color: white;
-                  border-radius: 50%;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  font-weight: 700;
-                  font-size: 0.9rem;
-                "
-              >
-                {{ intern.full_name[:2].upper() }}
-              </div>
-              <div>
-                <div style="font-weight: 600; color: var(--text-main)">
-                  {{ intern.full_name }}
-                </div>
-                <div style="font-size: 0.8rem; color: var(--text-secondary)">
-                  {{ intern.email }}
-                </div>
-              </div>
-            </div>
-          </td>
-          <td
-            style="
-              font-family: &quot;Space Grotesk&quot;, monospace;
-              color: var(--text-secondary);
-              font-size: 0.85rem;
-            "
-          >
-            {{ intern.intern_id }}
-          </td>
-          <td style="font-weight: 500">{{ intern.usn }}</td>
-          <td>
-            <span
-              style="
-                background: #f1f5f9;
-                padding: 2px 8px;
-                border-radius: 4px;
-                font-size: 0.8rem;
-                color: var(--text-secondary);
-              "
-            >
-              {{ intern.role }}
-            </span>
-          </td>
-          <td>
-            {% if intern.status == 'APPROVED' %}
-            <span class="status-badge status-approved">Approved</span>
-            {% elif intern.status == 'PENDING' %}
-            <span class="status-badge status-pending">Pending</span>
+<div class="glass-panel" style="padding: 0; overflow: hidden;">
+    <table style="width: 100%; border-collapse: collapse; min-width: 800px;">
+        <thead>
+            <tr style="background: rgba(255,255,255,0.05); text-align: left;">
+                <th style="padding: 1rem; color: var(--text-muted);">Profile</th>
+                <th style="padding: 1rem; color: var(--text-muted);">Details</th>
+                <th style="padding: 1rem; color: var(--text-muted);">Department</th>
+                <th style="padding: 1rem; color: var(--text-muted);">Status</th>
+                <th style="padding: 1rem; color: var(--text-muted);">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if interns %}
+                {% for user in interns %}
+                <tr style="border-bottom: 1px solid var(--glass-border);">
+                    <td style="padding: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <img src="{{ user.photo_url or 'https://ui-avatars.com/api/?name=' + user.full_name }}" style="width: 40px; height: 40px; border-radius: 50%;">
+                            <div>
+                                <div style="font-weight: 600;">{{ user.full_name }}</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">{{ user.intern_id }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="padding: 1rem;">
+                        <div style="font-size: 0.9rem;">{{ user.email }}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">{{ user.phone }}</div>
+                    </td>
+                    <td style="padding: 1rem;">
+                        <span style="background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 4px; font-size: 0.8rem;">{{ user.department }}</span>
+                    </td>
+                    <td style="padding: 1rem;">
+                        {% if user.status == 'APPROVED' %}
+                            <span style="color: var(--success); font-size: 0.9rem;"><i class="fas fa-check-circle"></i> Active</span>
+                        {% else %}
+                            <span style="color: #f59e0b; font-size: 0.9rem;"><i class="fas fa-clock"></i> Pending</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 1rem;">
+                        <a href="{{ url_for('admin_intern_detail', intern_id=user.id) }}" class="btn" style="background: transparent; border: 1px solid var(--primary); color: var(--primary); font-size: 0.8rem;">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
             {% else %}
-            <span class="status-badge status-rejected">Rejected</span>
+                <tr><td colspan="5" style="padding: 2rem; text-align: center;">No interns found matching criteria.</td></tr>
             {% endif %}
-          </td>
-          <td style="text-align: right">
-            <a
-              href="{{ url_for('admin_intern_detail', intern_id=intern.id) }}"
-              class="action-link"
-            >
-              Details <i class="ri-arrow-right-s-line"></i>
-            </a>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
+        </tbody>
     </table>
-  </div>
-  {% else %}
-  <div style="text-align: center; padding: 4rem; color: var(--text-secondary)">
-    <i
-      class="ri-user-search-line"
-      style="font-size: 3rem; opacity: 0.3; margin-bottom: 1rem; display: block"
-    ></i>
-    <p>No interns found in the system.</p>
-  </div>
-  {% endif %}
 </div>
 {% endblock %}

@@ -105,7 +105,7 @@ block page_title %}Task Board{% endblock %} {% block extra_head %}
 
 <!-- Grid -->
 <div class="task-grid">
-  {% iftasks %} {% for task in tasks %}
+  {% if tasks %} {% for task in tasks %}
   <div class="task-card">
     <div
       style="
