@@ -43,21 +43,22 @@ def get_api_headers(include_auth=True):
         'Content-Type': 'application/json',
         'X-API-Key': BACKEND_API_KEY
     }
-    if include_auth and current_user.is_authenticated:
-        headers['X-User-ID'] = str(current_user.id)
     return headers
 
-def api_request(method, endpoint, data=None, files=None):
+def api_request(method, endpoint, data=None, files=None, user_id=None):
     """Make request to backend API"""
     url = f"{BACKEND_URL}{endpoint}"
     headers = get_api_headers()
+    
+    # Add user ID to headers if provided
+    if user_id:
+        headers['X-User-ID'] = str(user_id)
     
     try:
         if method == 'GET':
             response = requests.get(url, headers=headers, params=data, timeout=30)
         elif method == 'POST':
             if files:
-                # For file uploads, don't set Content-Type (requests will set it)
                 headers.pop('Content-Type', None)
                 response = requests.post(url, headers=headers, data=data, files=files, timeout=60)
             else:
@@ -69,7 +70,6 @@ def api_request(method, endpoint, data=None, files=None):
         else:
             return {'success': False, 'error': 'Invalid method'}
         
-        # Parse response
         if response.status_code == 200:
             return response.json()
         else:
@@ -81,7 +81,6 @@ def api_request(method, endpoint, data=None, files=None):
         return {'success': False, 'error': 'Cannot connect to backend API'}
     except Exception as e:
         return {'success': False, 'error': str(e)}
-
 # ============================================================================
 # USER CLASS (Minimal - no DB)
 # ============================================================================
