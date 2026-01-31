@@ -1,160 +1,91 @@
-{% extends "intern/base.html" %} {% block title %}Messages{% endblock %} {%
-block extra_head %}
-<style>
-  .msg-card {
-    background: var(--glass-surface);
-    border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    margin-bottom: 1rem;
-    transition: all 0.3s ease;
-    overflow: hidden;
-  }
-  .msg-header {
-    padding: 1.2rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
-  }
-  .msg-header:hover {
-    background: rgba(255, 255, 255, 0.03);
-  }
-
-  .sender-info {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-  }
-  .sender-icon {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background: rgba(99, 102, 241, 0.1);
-    color: var(--primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-  }
-  .msg-meta h4 {
-    margin: 0;
-    font-size: 1rem;
-    color: var(--text-main);
-  }
-  .msg-meta span {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-  }
-
-  .status-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--danger);
-    box-shadow: 0 0 10px var(--danger);
-    margin-right: 15px;
-  }
-  /* State: Read */
-  .msg-read .status-dot {
-    display: none;
-  }
-  .msg-read .msg-header {
-    opacity: 0.8;
-  }
-
-  .msg-body {
-    padding: 0 1.2rem;
-    max-height: 0;
-    overflow: hidden;
-    transition:
-      max-height 0.3s ease,
-      padding 0.3s ease;
-    background: rgba(0, 0, 0, 0.2);
-    color: var(--text-main);
-    font-size: 0.95rem;
-    line-height: 1.6;
-  }
-  /* State: Open */
-  .msg-open .msg-body {
-    padding: 1.2rem;
-    max-height: 500px;
-    border-top: 1px solid var(--glass-border);
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 4rem;
-    color: var(--text-muted);
-  }
-</style>
-{% endblock %} {% block content %}
-<div class="glass-panel" style="padding: 2rem; border-radius: 20px">
-  <h2 style="margin-bottom: 2rem; font-weight: 700">Inbox</h2>
-
-  {% if messages %} {% for msg in messages %}
-  <!-- Conditional class for read status -->
+{% extends "intern_base.html" %} {% block title %}Messages{% endblock %} {%
+block page_title %}Inbox{% endblock %} {% block content %}
+<div
+  class="glass-panel"
+  style="border-radius: 20px; padding: 2rem; min-height: 60vh"
+>
+  {% if messages %}
   <div
-    class="msg-card {{ 'msg-read' if msg.is_read else '' }}"
-    id="msg-{{ msg.id }}"
+    style="display: flex; flex-direction: column; gap: 1rem"
+    x-data="{ activeMsg: null }"
   >
-    <!-- Header Click to Toggle -->
+    {% for msg in messages %}
     <div
-      class="msg-header"
-      onclick="toggleMessage({{ msg.id }}, {{ 'false' if msg.is_read else 'true' }})"
+      class="message-card"
+      style="border: 1px solid {{ 'var(--primary)' if not msg.read else 'var(--glass-border)' }}; background: rgba(255,255,255,0.02); border-radius: 12px; overflow: hidden; transition: 0.3s;"
     >
-      <div class="sender-info">
-        {% if not msg.is_read %}
-        <div class="status-dot"></div>
-        {% endif %}
-        <div class="sender-icon"><i class="fas fa-user-circle"></i></div>
-        <div class="msg-meta">
-          <h4>{{ msg.subject }}</h4>
-          <span>From: {{ msg.sender_name }} &bull; {{ msg.created_at }}</span>
+      <!-- Header -->
+      <div
+        @click="activeMsg = activeMsg === {{ msg.id }} ? null : {{ msg.id }}; if(!{{ 'true' if msg.read else 'false' }}) { fetch('/intern/message/{{ msg.id }}/read', {method:'POST'}); }"
+        style="
+          padding: 1rem;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          background: rgba(255, 255, 255, 0.02);
+        "
+      >
+        <div style="display: flex; align-items: center; gap: 1rem">
+          <div
+            style="
+              width: 40px;
+              height: 40px;
+              border-radius: 50%;
+              background: var(--glass-highlight);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: var(--primary);
+            "
+          >
+            <i
+              class="fas {{ 'fa-broadcast-tower' if msg.is_broadcast else 'fa-user' }}"
+            ></i>
+          </div>
+          <div>
+            <h4 style="font-size: 1rem; margin-bottom: 2px">
+              {{ msg.subject }}
+            </h4>
+            <span style="font-size: 0.8rem; color: var(--text-muted)"
+              >From: {{ msg.sender_name }} &bull; {{ msg.timestamp }}</span
+            >
+          </div>
         </div>
+
+        {% if not msg.read %}
+        <span
+          class="badge"
+          style="position: static; transform: none; background: var(--primary)"
+          >NEW</span
+        >
+        {% endif %}
       </div>
-      <i class="fas fa-chevron-down" style="color: var(--text-muted)"></i>
+
+      <!-- Body (Accordion) -->
+      <div
+        x-show="activeMsg === {{ msg.id }}"
+        x-collapse
+        style="
+          padding: 1.5rem;
+          border-top: 1px solid var(--glass-border);
+          color: var(--text-muted);
+          line-height: 1.6;
+        "
+      >
+        {{ msg.content }}
+      </div>
     </div>
-    <!-- Message Content -->
-    <div class="msg-body" id="body-{{ msg.id }}">{{ msg.content }}</div>
+    {% endfor %}
   </div>
-  {% endfor %} {% else %}
-  <div class="empty-state">
+  {% else %}
+  <div style="text-align: center; margin-top: 4rem; color: var(--text-muted)">
     <i
       class="far fa-envelope-open"
       style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5"
     ></i>
-    <p>No messages found.</p>
+    <p>Your inbox is empty.</p>
   </div>
   {% endif %}
 </div>
-
-<script>
-  function toggleMessage(id, markRead) {
-    const card = document.getElementById(`msg-${id}`);
-
-    // Toggle Open/Close
-    if (card.classList.contains("msg-open")) {
-      card.classList.remove("msg-open");
-    } else {
-      // Optional: Close all others
-      document
-        .querySelectorAll(".msg-card")
-        .forEach((c) => c.classList.remove("msg-open"));
-      card.classList.add("msg-open");
-
-      // Mark as read via API if needed
-      if (markRead && !card.classList.contains("msg-read")) {
-        fetch(`/intern/message/${id}/read`, { method: "POST" })
-          .then((res) => res.json())
-          .then((data) => {
-            if (data.success) {
-              card.classList.add("msg-read");
-              const dot = card.querySelector(".status-dot");
-              if (dot) dot.remove();
-            }
-          });
-      }
-    }
-  }
-</script>
 {% endblock %}

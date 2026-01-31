@@ -1,169 +1,160 @@
-{% extends "intern/base.html" %} {% block page_title %}Submit Work{% endblock %}
-{% block extra_head %}
+{% extends "intern_base.html" %} {% block title %}Submit Work{% endblock %} {%
+block page_title %}Submit Deliverable{% endblock %} {% block extra_head %}
 <style>
-  .form-container {
-    max-width: 800px;
-    margin: 0 auto;
-  }
-
   .form-group {
     margin-bottom: 1.5rem;
   }
-
-  label {
+  .form-label {
     display: block;
     margin-bottom: 0.5rem;
     color: var(--text-muted);
     font-size: 0.9rem;
   }
-
-  .form-control {
+  .form-input,
+  .form-select,
+  .form-textarea {
     width: 100%;
-    padding: 1rem;
+    padding: 12px 16px;
     background: rgba(0, 0, 0, 0.2);
     border: 1px solid var(--glass-border);
-    border-radius: 10px;
+    border-radius: 12px;
     color: var(--text-main);
-    transition: 0.3s;
+    transition: all 0.3s ease;
   }
-  .form-control:focus {
+  .form-input:focus,
+  .form-textarea:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 10px var(--primary-glow);
+    box-shadow: 0 0 0 4px var(--primary-glow);
   }
 
-  .drop-zone {
+  .file-drop-zone {
     border: 2px dashed var(--glass-border);
-    padding: 3rem;
-    text-align: center;
     border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.02);
+    transition: 0.3s;
     cursor: pointer;
-    transition: 0.3s;
-    background: rgba(255, 255, 255, 0.01);
-    position: relative;
   }
-  .drop-zone:hover {
-    background: rgba(255, 255, 255, 0.03);
+  .file-drop-zone:hover {
     border-color: var(--primary);
-  }
-  .drop-zone i {
-    font-size: 3rem;
-    color: var(--text-muted);
-    margin-bottom: 1rem;
-    transition: 0.3s;
-  }
-  .drop-zone:hover i {
-    color: var(--primary);
-    transform: translateY(-5px);
+    background: rgba(99, 102, 241, 0.05);
   }
 
-  .submit-btn-lg {
-    width: 100%;
-    padding: 1rem;
-    background: linear-gradient(135deg, var(--primary), #4338ca);
+  .submit-btn {
+    background: var(--primary);
     color: white;
+    padding: 12px 30px;
+    border-radius: 50px;
     border: none;
-    border-radius: 10px;
-    font-size: 1.1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: 0.3s;
-    box-shadow: 0 4px 20px var(--primary-glow);
+    font-weight: 600;
+    font-size: 1rem;
+    width: 100%;
+    box-shadow: 0 4px 15px var(--primary-glow);
+    transition: transform 0.2s;
   }
-  .submit-btn-lg:hover {
+  .submit-btn:hover {
     transform: translateY(-2px);
   }
 </style>
 {% endblock %} {% block content %}
-<div class="form-container">
-  <div class="glass-panel card-3d" style="padding: 2.5rem; border-radius: 20px">
-    <h2
-      style="
-        margin-bottom: 2rem;
-        border-bottom: 1px solid var(--glass-border);
-        padding-bottom: 1rem;
-      "
-    >
-      <i class="fas fa-paper-plane" style="color: var(--primary)"></i>
-      Submission Form
-    </h2>
+<div style="max-width: 800px; margin: 0 auto">
+  <div class="glass-panel" style="border-radius: 24px; padding: 2.5rem">
+    <div style="text-align: center; margin-bottom: 2rem">
+      <div
+        style="
+          width: 60px;
+          height: 60px;
+          background: rgba(99, 102, 241, 0.1);
+          border-radius: 50%;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--primary);
+          margin-bottom: 1rem;
+        "
+      >
+        <i class="fas fa-rocket" style="font-size: 1.5rem"></i>
+      </div>
+      <h2 style="font-size: 1.5rem; font-weight: 700">Submit Your Work</h2>
+      <p style="color: var(--text-muted)">
+        Upload your deliverables for review.
+      </p>
+    </div>
 
-    <form action="{{ url_for('intern_submit') }}" method="POST" id="submitForm">
+    <form
+      action="{{ url_for('intern_submit') }}"
+      method="POST"
+      enctype="multipart/form-data"
+    >
       <div class="form-group">
-        <label>Select Task</label>
-        <select name="task_id" required class="form-control">
-          <option value="" style="background: #1e293b">
-            -- Choose a Task --
-          </option>
-          {% for task in tasks %} {% if task.submitted == 0 %}
-          <option value="{{ task.id }}" style="background: #1e293b">
+        <label class="form-label">Select Task</label>
+        <select name="task_id" class="form-select" required>
+          <option value="" disabled selected>Choose a pending task...</option>
+          {% for task in tasks %}
+          <option value="{{ task.id }}">
             {{ task.title }} (Due: {{ task.deadline }})
           </option>
-          {% endif %} {% endfor %}
+          {% endfor %}
         </select>
       </div>
 
       <div class="form-group">
-        <label>Report / Description</label>
+        <label class="form-label">Submission Content / Notes</label>
         <textarea
           name="content"
-          rows="6"
+          class="form-textarea"
+          rows="5"
+          placeholder="Describe your work, add links, or provide context..."
           required
-          class="form-control"
-          placeholder="Describe your work done..."
         ></textarea>
       </div>
 
-      <!-- Hidden Inputs for File Handling -->
-      <input type="hidden" name="file_data" id="file_data" />
-      <input type="hidden" name="file_type" id="file_type" />
-
       <div class="form-group">
-        <label>Attachment</label>
+        <label class="form-label">Attachments (Optional)</label>
+        <!-- This input handles the base64 or file upload logic as per your app.py -->
+        <!-- Assuming standard file input for UI, though app.py expects file_data or standard upload -->
         <div
-          class="drop-zone"
-          onclick="document.getElementById('file-input').click()"
+          class="file-drop-zone"
+          onclick="document.getElementById('fileInput').click()"
         >
+          <i
+            class="fas fa-cloud-upload-alt"
+            style="
+              font-size: 2rem;
+              color: var(--text-muted);
+              margin-bottom: 10px;
+            "
+          ></i>
+          <p style="font-weight: 600">Click to upload file</p>
+          <p style="font-size: 0.8rem; color: var(--text-muted)">
+            PDF, DOCX, ZIP, PNG (Max 10MB)
+          </p>
           <input
             type="file"
-            id="file-input"
+            id="fileInput"
+            name="file_data"
             style="display: none"
-            onchange="handleFileSelect(this)"
+            onchange="
+              document.getElementById('fileName').innerText = this.files[0].name
+            "
           />
-          <i class="fas fa-cloud-upload-alt"></i>
-          <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem">
-            Click to Upload
-          </h3>
-          <p style="color: var(--text-muted); font-size: 0.9rem">
-            PDF, DOC, ZIP (Max 10MB)
-          </p>
-          <div
-            id="file-name"
-            style="margin-top: 1rem; color: var(--primary); font-weight: 600"
-          ></div>
+          <p
+            id="fileName"
+            style="margin-top: 10px; color: var(--primary); font-size: 0.9rem"
+          ></p>
         </div>
+        <!-- Hidden input for file type if needed by backend logic -->
+        <input type="hidden" name="file_type" value="document" />
       </div>
 
-      <button type="submit" class="submit-btn-lg">Submit Work</button>
+      <div style="margin-top: 2rem">
+        <button type="submit" class="submit-btn">
+          Submit for Review
+          <i class="fas fa-paper-plane" style="margin-left: 8px"></i>
+        </button>
+      </div>
     </form>
   </div>
 </div>
-
-<script>
-  function handleFileSelect(input) {
-    const file = input.files[0];
-    if (file) {
-      document.getElementById("file-name").innerText = "Selected: " + file.name;
-
-      // Convert to Base64
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        document.getElementById("file_data").value = e.target.result;
-        // Simple extension extraction
-        const ext = file.name.split(".").pop().toLowerCase();
-        document.getElementById("file_type").value = ext;
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-</script>
 {% endblock %}

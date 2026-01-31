@@ -1,113 +1,75 @@
-{% extends "intern/base.html" %} {% block title %}Announcements{% endblock %} {%
-block extra_head %}
-<style>
-  .timeline {
-    position: relative;
-    max-width: 800px;
-    margin: 0 auto;
-  }
-  .timeline::before {
-    content: "";
-    position: absolute;
-    left: 20px;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: linear-gradient(to bottom, var(--primary), transparent);
-  }
+{% extends "intern_base.html" %} {% block title %}Announcements{% endblock %} {%
+block page_title %}Announcements{% endblock %} {% block content %}
+<div style="max-width: 800px; margin: 0 auto">
+  {% if announcements %} {% for ann in announcements %}
+  <div
+    class="glass-panel"
+    style="
+      margin-bottom: 1.5rem;
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+    "
+  >
+    <!-- Priority Indicator -->
+    {% if ann.priority == 'HIGH' %}
+    <div
+      style="
+        position: absolute;
+        top: 0;
+        right: 0;
+        background: var(--danger);
+        color: white;
+        font-size: 0.7rem;
+        padding: 4px 12px;
+        border-bottom-left-radius: 12px;
+      "
+    >
+      URGENT
+    </div>
+    {% endif %}
 
-  .ann-card {
-    margin-left: 50px;
-    margin-bottom: 2rem;
-    position: relative;
-    background: var(--glass-surface);
-    border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    padding: 1.5rem;
-  }
-
-  .timeline-dot {
-    position: absolute;
-    left: -39px;
-    top: 20px;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: var(--bg-color);
-    border: 4px solid var(--primary);
-    box-shadow: 0 0 10px var(--primary-glow);
-  }
-
-  .priority-HIGH .timeline-dot {
-    border-color: var(--danger);
-    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
-  }
-
-  .ann-meta {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    margin-top: 1rem;
-    display: flex;
-    justify-content: space-between;
-    border-top: 1px solid var(--glass-border);
-    padding-top: 0.5rem;
-  }
-</style>
-{% endblock %} {% block content %}
-<div style="padding: 2rem">
-  <h2 style="text-align: center; margin-bottom: 3rem; font-weight: 700">
-    Company Announcements
-  </h2>
-
-  <div class="timeline">
-    {% for ann in announcements %}
-    <div class="ann-card priority-{{ ann.priority }}">
-      <div class="timeline-dot"></div>
+    <div style="padding: 1.5rem">
       <div
         style="
+          margin-bottom: 10px;
           display: flex;
-          justify-content: space-between;
-          align-items: start;
+          align-items: center;
+          gap: 10px;
         "
       >
-        <h3
-          style="
-            font-size: 1.2rem;
-            color: var(--text-main);
-            margin-bottom: 0.5rem;
-          "
-        >
-          {{ ann.title }}
-        </h3>
-        {% if ann.priority == 'HIGH' %}
         <span
           style="
-            background: rgba(239, 68, 68, 0.2);
-            color: var(--danger);
-            padding: 2px 8px;
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+            padding: 4px 10px;
             border-radius: 4px;
             font-size: 0.7rem;
-            font-weight: 700;
+            text-transform: uppercase;
           "
-          >URGENT</span
         >
-        {% endif %}
+          {{ ann.category }}
+        </span>
+        <span style="color: var(--text-muted); font-size: 0.8rem">
+          <i class="far fa-clock"></i> {{ ann.created_at }}
+        </span>
       </div>
 
-      <p style="color: rgba(255, 255, 255, 0.8); line-height: 1.6">
-        {{ ann.content }}
-      </p>
-
-      <div class="ann-meta">
-        <span><i class="fas fa-user-tag"></i> {{ ann.created_by_name }}</span>
-        <span>{{ ann.created_at }}</span>
+      <h2 style="font-size: 1.3rem; margin-bottom: 1rem">{{ ann.title }}</h2>
+      <div
+        style="color: var(--text-muted); line-height: 1.6; font-size: 0.95rem"
+      >
+        {{ ann.content|safe }}
       </div>
     </div>
-    {% else %}
-    <p style="text-align: center; color: var(--text-muted)">
-      No announcements available.
-    </p>
-    {% endfor %}
   </div>
+  {% endfor %} {% else %}
+  <div
+    class="glass-panel"
+    style="padding: 3rem; text-align: center; color: var(--text-muted)"
+  >
+    No announcements at this time.
+  </div>
+  {% endif %}
 </div>
 {% endblock %}

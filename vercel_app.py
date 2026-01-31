@@ -26,7 +26,7 @@ app = Flask(__name__, template_folder='templates', static_folder='static')
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'change-this-in-production')
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=365)
-app.config['SESSION_COOKIE_SECURE'] = True  
+app.config['SESSION_COOKIE_SECURE'] = False  
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 

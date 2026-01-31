@@ -1,237 +1,165 @@
-{% extends "intern/base.html" %} {% block title %}Documents{% endblock %} {%
-block extra_head %}
-<style>
-  .upload-zone {
-    border: 2px dashed var(--glass-border);
-    border-radius: 20px;
-    padding: 3rem;
-    text-align: center;
-    background: rgba(255, 255, 255, 0.01);
-    cursor: pointer;
-    transition: 0.3s;
-    margin-bottom: 2rem;
-  }
-  .upload-zone:hover {
-    border-color: var(--primary);
-    background: rgba(99, 102, 241, 0.05);
-  }
-
-  .doc-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
-  }
-  .doc-table th {
-    text-align: left;
-    padding: 1rem;
-    color: var(--text-muted);
-    border-bottom: 1px solid var(--glass-border);
-  }
-  .doc-table td {
-    padding: 1rem;
-    border-bottom: 1px solid var(--glass-border);
-    color: var(--text-main);
-  }
-
-  .status-badge {
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 700;
-  }
-  .st-VERIFIED {
-    background: rgba(16, 185, 129, 0.2);
-    color: var(--success);
-  }
-  .st-PENDING {
-    background: rgba(245, 158, 11, 0.2);
-    color: var(--warning);
-  }
-  .st-REJECTED {
-    background: rgba(239, 68, 68, 0.2);
-    color: var(--danger);
-  }
-</style>
-{% endblock %} {% block content %}
-<div class="glass-panel" style="padding: 2rem; border-radius: 20px">
-  <h2 style="margin-bottom: 1.5rem; font-weight: 700">Document Repository</h2>
-
-  <!-- Upload Form -->
-  <form
-    action="{{ url_for('intern_documents') }}"
-    method="POST"
-    enctype="multipart/form-data"
-  >
+{% extends "intern_base.html" %} {% block title %}Documents{% endblock %} {%
+block page_title %}My Documents{% endblock %} {% block content %}
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem">
+  <!-- List -->
+  <div>
+    <h3 style="margin-bottom: 1rem; font-size: 1.2rem">Uploaded Documents</h3>
     <div
-      class="upload-zone"
-      onclick="document.getElementById('file-input').click()"
+      class="glass-panel"
+      style="padding: 0; border-radius: 16px; overflow: hidden"
     >
-      <input
-        type="file"
-        name="file_data"
-        id="file-input"
-        style="display: none"
-        onchange="handleFile(this)"
-      />
-      <!-- Hidden inputs for JS processing if needed, but standard file upload works for form submission -->
-      <i
-        class="fas fa-cloud-upload-alt"
-        style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem"
-      ></i>
-      <h4 style="color: var(--text-main); margin-bottom: 0.5rem">
-        Click to Upload Document
-      </h4>
-      <p style="color: var(--text-muted); font-size: 0.9rem">
-        PDF, JPG, PNG (Max 10MB)
-      </p>
+      {% if documents %} {% for doc in documents %}
       <div
-        id="file-name"
-        style="margin-top: 1rem; color: var(--primary); font-weight: 700"
-      ></div>
-    </div>
-
-    <div
-      style="
-        display: grid;
-        grid-template-columns: 1fr 1fr auto;
-        gap: 1rem;
-        margin-bottom: 2rem;
-      "
-    >
-      <select
-        name="document_type"
-        required
         style="
-          padding: 12px;
-          border-radius: 10px;
-          background: rgba(0, 0, 0, 0.3);
-          color: white;
-          border: 1px solid var(--glass-border);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 1rem;
+          border-bottom: 1px solid var(--glass-border);
         "
       >
-        <option value="">Select Type</option>
-        <option value="ID_PROOF">ID Proof</option>
-        <option value="RESUME">Resume</option>
-        <option value="CERTIFICATE">Certificate</option>
-        <option value="OTHER">Other</option>
-      </select>
-      <input
-        type="text"
-        name="document_name"
-        placeholder="Document Name"
-        required
+        <div style="display: flex; align-items: center; gap: 1rem">
+          <i
+            class="fas fa-file-alt"
+            style="font-size: 1.5rem; color: var(--primary)"
+          ></i>
+          <div>
+            <div style="font-weight: 600">{{ doc.name }}</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted)">
+              {{ doc.type }} &bull; {{ doc.uploaded_at }}
+            </div>
+          </div>
+        </div>
+        <div>
+          {% if doc.verified %}
+          <span style="color: var(--success); font-size: 0.85rem"
+            ><i class="fas fa-check-circle"></i> Verified</span
+          >
+          {% else %}
+          <span style="color: #f59e0b; font-size: 0.85rem"
+            ><i class="fas fa-clock"></i> Pending</span
+          >
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %} {% else %}
+      <div style="padding: 2rem; text-align: center; color: var(--text-muted)">
+        No documents uploaded.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Upload -->
+  <div
+    class="glass-panel"
+    style="padding: 2rem; border-radius: 16px; height: fit-content"
+  >
+    <h3 style="margin-bottom: 1rem">Upload New</h3>
+    <form
+      action="{{ url_for('intern_documents') }}"
+      method="POST"
+      enctype="multipart/form-data"
+    >
+      <div style="margin-bottom: 1rem">
+        <label
+          style="
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+          "
+          >Document Type</label
+        >
+        <select
+          name="document_type"
+          style="
+            width: 100%;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text-main);
+          "
+        >
+          <option value="ID Proof">ID Proof</option>
+          <option value="Resume">Resume</option>
+          <option value="Agreement">Internship Agreement</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom: 1rem">
+        <label
+          style="
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+          "
+          >Document Name</label
+        >
+        <input
+          type="text"
+          name="document_name"
+          placeholder="e.g. Aadhar Card"
+          style="
+            width: 100%;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text-main);
+          "
+        />
+      </div>
+
+      <div
         style="
-          padding: 12px;
-          border-radius: 10px;
-          background: rgba(0, 0, 0, 0.3);
-          color: white;
-          border: 1px solid var(--glass-border);
+          border: 2px dashed var(--glass-border);
+          border-radius: 12px;
+          padding: 1.5rem;
+          text-align: center;
+          cursor: pointer;
+          margin-bottom: 1.5rem;
         "
-      />
+        onclick="document.getElementById('docFile').click()"
+      >
+        <i
+          class="fas fa-cloud-upload-alt"
+          style="font-size: 1.5rem; color: var(--text-muted)"
+        ></i>
+        <p style="font-size: 0.8rem; margin-top: 5px; color: var(--text-muted)">
+          Click to browse file
+        </p>
+        <input
+          type="file"
+          name="file_data"
+          id="docFile"
+          style="display: none"
+          onchange="this.nextElementSibling.innerText = this.files[0].name"
+        />
+        <p
+          style="font-size: 0.8rem; color: var(--primary); margin-top: 5px"
+        ></p>
+      </div>
+
       <button
         type="submit"
+        class="btn"
         style="
-          padding: 12px 24px;
+          width: 100%;
           background: var(--primary);
           color: white;
+          padding: 10px;
+          border-radius: 50px;
           border: none;
-          border-radius: 10px;
-          font-weight: 700;
-          cursor: pointer;
+          font-weight: 600;
         "
       >
         Upload
       </button>
-    </div>
-  </form>
-
-  <!-- History -->
-  <h3
-    style="
-      margin-top: 2rem;
-      border-bottom: 1px solid var(--glass-border);
-      padding-bottom: 10px;
-    "
-  >
-    Upload History
-  </h3>
-  <div style="overflow-x: auto">
-    <table class="doc-table">
-      <thead>
-        <tr>
-          <th>Document</th>
-          <th>Type</th>
-          <th>Date</th>
-          <th>Status</th>
-          <th>Notes</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for doc in documents %}
-        <tr>
-          <td>
-            <a
-              href="{{ url_for('uploaded_file', filename='documents/' + doc.file_url) }}"
-              target="_blank"
-              style="
-                color: var(--text-main);
-                text-decoration: none;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-              "
-            >
-              <i class="fas fa-file-alt" style="color: var(--primary)"></i> {{
-              doc.document_name }}
-            </a>
-          </td>
-          <td>{{ doc.document_type }}</td>
-          <td>{{ doc.uploaded_at }}</td>
-          <td>
-            <span class="status-badge st-{{ doc.status }}"
-              >{{ doc.status }}</span
-            >
-          </td>
-          <td style="color: var(--danger); font-size: 0.9rem">
-            {{ doc.rejection_reason if doc.rejection_reason else '-' }}
-          </td>
-        </tr>
-        {% else %}
-        <tr>
-          <td colspan="5" style="text-align: center; padding: 2rem">
-            No documents uploaded.
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    </form>
   </div>
 </div>
-
-<script>
-  function handleFile(input) {
-    if (input.files.length > 0) {
-      document.getElementById("file-name").innerText =
-        "Selected: " + input.files[0].name;
-      // Note: For actual file upload in app.py, you need to handle 'file_data' as a file object or base64.
-      // Since app.py expects base64 in 'file_data', we need a reader here.
-
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        // Create a hidden input to hold base64 string
-        let hidden = document.getElementById("b64-input");
-        if (!hidden) {
-          hidden = document.createElement("input");
-          hidden.type = "hidden";
-          hidden.name = "file_data"; // override the file input name
-          hidden.id = "b64-input";
-          input.form.appendChild(hidden);
-          input.name = ""; // remove name from file input so it doesn't send binary
-        }
-        hidden.value = e.target.result;
-      };
-      reader.readAsDataURL(input.files[0]);
-    }
-  }
-</script>
 {% endblock %}

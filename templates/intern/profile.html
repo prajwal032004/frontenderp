@@ -1,818 +1,300 @@
-{% extends "intern/base.html" %} {% block title %}My Profile{% endblock %} {%
+{% extends "intern_base.html" %} {% block title %}My Profile{% endblock %} {%
 block page_title %}Profile Settings{% endblock %} {% block extra_head %}
-<!-- Cropper.js CSS -->
-<link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"
-/>
-
 <style>
-  html,
-  body {
-    cursor:
-      url("data:image/svg+xml;utf8,<svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M3 3L10.07 19.97L12.9 12.9L19.97 10.07L3 3Z' fill='%23f8fafc' stroke='%230f172a' stroke-width='1.5' stroke-linejoin='round'/></svg>")
-        3 3,
-      auto !important;
-  }
-
-  a,
-  button,
-  label,
-  .banner-edit-btn,
-  .avatar-upload-overlay,
-  .control-btn,
-  .action-btn,
-  .btn-primary-block,
-  .custom-input,
-  .btn-save-crop,
-  [role="button"] {
-    cursor:
-      url("data:image/svg+xml;utf8,<svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M3 3L10.07 19.97L12.9 12.9L19.97 10.07L3 3Z' fill='%236366f1' stroke='%23ffffff' stroke-width='1.5' stroke-linejoin='round'/><circle cx='3' cy='3' r='3' fill='%236366f1' fill-opacity='0.5'/></svg>")
-        3 3,
-      pointer !important;
-  }
-
-  .cropper-container,
-  .cropper-wrap-box,
-  .cropper-canvas,
-  .cropper-face {
-    cursor:
-      url("data:image/svg+xml;utf8,<svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M3 3L10.07 19.97L12.9 12.9L19.97 10.07L3 3Z' fill='%236366f1' stroke='%23ffffff' stroke-width='1.5' stroke-linejoin='round'/></svg>")
-        3 3,
-      crosshair !important;
-  }
-  /* Custom Geometric Cursor for Text Boxes (Inputs/Textareas) */
-  input[type="text"],
-  input[type="tel"],
-  input[type="password"],
-  input[type="email"],
-  textarea,
-  .custom-input {
-    /* This creates a geometric 'I' shaped cursor for text fields */
-    cursor:
-      url("data:image/svg+xml;utf8,<svg width='8' height='24' viewBox='0 0 8 24' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M1 2L7 2M4 2L4 22M1 22L7 22' stroke='%236366f1' stroke-width='2' stroke-linecap='round'/></svg>")
-        4 12,
-      text !important;
-  }
-
-  /* Make sure the blue active cursor works on the Sidebar Logo box too */
-  .logo-box {
-    cursor:
-      url("data:image/svg+xml;utf8,<svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M3 3L10.07 19.97L12.9 12.9L19.97 10.07L3 3Z' fill='%236366f1' stroke='%23ffffff' stroke-width='1.5' stroke-linejoin='round'/><circle cx='3' cy='3' r='3' fill='%236366f1' fill-opacity='0.5'/></svg>")
-        3 3,
-      pointer !important;
-  }
-  .profile-header-card {
-    border-radius: 16px;
-    overflow: hidden;
+  .profile-header {
+    text-align: center;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--glass-border);
     margin-bottom: 2rem;
+  }
+  .profile-img-container {
     position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 1rem;
   }
-
-  /* Banner Area */
-  .profile-banner {
-    height: 220px;
-    width: 100%;
-    background-color: var(--bg-body);
-    /* Fallback Gradient */
-    background-image: linear-gradient(135deg, #4f46e5 0%, #0f172a 100%);
-    background-size: cover;
-    background-position: center;
-    position: relative;
-  }
-
-  .banner-edit-btn {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(5px);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 8px 12px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: 0.2s;
-  }
-  .banner-edit-btn:hover {
-    background: var(--primary);
-  }
-
-  /* Info Section */
-  .profile-info-section {
-    padding: 0 2rem 2rem 2rem;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* Avatar */
-  .profile-avatar-wrapper {
-    width: 150px;
-    height: 150px;
-    margin-top: -80px;
-    margin-bottom: 1rem;
-    position: relative;
-    z-index: 10;
-  }
-
-  .profile-avatar {
+  .profile-img {
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    border: 5px solid var(--glass-surface);
     object-fit: cover;
-    background: var(--bg-body);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    border: 4px solid var(--glass-surface);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
   }
-
-  /* Upload Icon */
-  .avatar-upload-overlay {
+  .edit-badge {
     position: absolute;
-    bottom: 10px;
-    right: 10px;
-    width: 36px;
-    height: 36px;
+    bottom: 0;
+    right: 0;
     background: var(--primary);
+    color: white;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    border: 2px solid var(--glass-surface);
     cursor: pointer;
-    transition: transform 0.2s;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  }
-  .avatar-upload-overlay:hover {
-    transform: scale(1.1);
+    border: 2px solid var(--bg-body);
   }
 
-  /* User Text */
-  .profile-names {
-    margin-bottom: 1rem;
-  }
-  .profile-names h1 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--text-main);
-    margin-bottom: 4px;
-  }
-  .profile-role {
-    font-size: 1rem;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .role-badge {
-    font-size: 0.75rem;
-    background: rgba(99, 102, 241, 0.15);
-    color: var(--primary);
-    padding: 2px 8px;
-    border-radius: 6px;
-    font-weight: 600;
-    border: 1px solid rgba(99, 102, 241, 0.3);
-  }
-
-  /* --- GRID LAYOUT --- */
-  .settings-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 1.5rem;
-  }
-
-  .section-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-main);
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--glass-border);
+  .info-row {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.9rem;
+  }
+  .info-label {
+    color: var(--text-muted);
+  }
+  .info-value {
+    font-weight: 600;
   }
 
-  /* Inputs */
-  .form-group {
-    margin-bottom: 1.25rem;
+  .input-group {
+    margin-bottom: 1.2rem;
   }
-  .form-label {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    margin-bottom: 0.5rem;
-    display: block;
-  }
-  .custom-input {
+  .input-field {
     width: 100%;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--glass-border);
-    padding: 12px 16px;
-    border-radius: 8px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--glass-border);
+    padding: 10px 0;
     color: var(--text-main);
     font-family: inherit;
-    transition: 0.3s ease;
   }
-  .custom-input:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
-  }
-  .custom-input:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  /* Buttons */
-  .btn-primary-block {
-    width: 100%;
-    background: var(--primary);
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-  .btn-primary-block:hover {
-    background: #4f46e5;
-    box-shadow: 0 4px 15px var(--primary-glow);
-  }
-
-  /* Stats */
-  .stats-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 1.5rem;
-  }
-  .stat-item {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--glass-border);
-    border-radius: 10px;
-    padding: 15px 10px;
-    text-align: center;
-    transition: 0.2s;
-  }
-  .stat-item:hover {
-    background: rgba(255, 255, 255, 0.06);
-    transform: translateY(-2px);
-  }
-  .stat-val {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--text-main);
-    display: block;
-  }
-  .stat-label {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  /* --- CROPPER MODAL STYLES --- */
-  .crop-modal-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(5px);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-  }
-
-  .crop-modal-content {
-    background: #1e293b;
-    border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    width: 100%;
-    max-width: 500px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  }
-
-  .crop-container {
-    height: 350px;
-    background: #000;
-    position: relative;
-  }
-
-  .crop-controls {
-    padding: 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--glass-surface);
-    border-top: 1px solid var(--glass-border);
-  }
-
-  .control-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    color: var(--text-muted);
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: 0.2s;
-  }
-  .control-btn:hover {
-    background: var(--primary);
-    color: white;
-  }
-
-  .action-btn {
-    padding: 10px 24px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    transition: 0.2s;
-  }
-  .btn-cancel {
-    background: transparent;
-    color: var(--text-muted);
-    margin-right: 10px;
-  }
-  .btn-save-crop {
-    background: var(--primary);
-    color: white;
-  }
-
-  @media (max-width: 900px) {
-    .settings-grid {
-      grid-template-columns: 1fr;
-    }
-    .profile-info-section {
-      align-items: center;
-      text-align: center;
-    }
-    .profile-names {
-      margin-top: 0.5rem;
-    }
-    .profile-role {
-      justify-content: center;
-    }
-    .profile-banner {
-      height: 150px;
-    }
+  .input-field:focus {
+    border-bottom-color: var(--primary);
   }
 </style>
 {% endblock %} {% block content %}
-<!-- 1. The "LinkedIn" Style Header Card -->
-<div class="glass-panel profile-header-card">
-  <!-- Banner Image -->
-  <div
-    class="profile-banner"
-    style="background-image: url('{{ url_for('static', filename='images/profile-banner.jpg') }}'), linear-gradient(135deg, var(--primary) 0%, #0f172a 100%);"
-  >
-    <!-- Functional placeholder for Banner Edit -->
-    <button class="banner-edit-btn" title="Change Cover Photo">
-      <i class="fas fa-camera"></i>
-    </button>
-  </div>
-
-  <div class="profile-info-section">
-    <!-- Avatar Wrapper -->
-    <div class="profile-avatar-wrapper">
-      {% if user.photo_url %}
-      <img
-        src="{{ url_for('uploaded_file', filename='profiles/' + user.photo_url) }}"
-        class="profile-avatar"
-        id="avatar-preview"
-      />
-      {% else %}
-      <img
-        src="https://ui-avatars.com/api/?name={{ user.full_name }}&background=6366f1&color=fff&size=200"
-        class="profile-avatar"
-        id="avatar-preview"
-      />
-      {% endif %}
-
-      <!-- Upload Trigger -->
-      <label
-        for="photo-upload"
-        class="avatar-upload-overlay"
-        title="Upload new photo"
-      >
-        <i class="fas fa-pencil-alt" style="font-size: 0.9rem"></i>
-      </label>
-
-      <!-- Hidden File Input -->
-      <input
-        type="file"
-        id="photo-upload"
-        accept="image/*"
-        style="display: none"
-      />
-    </div>
-
-    <!-- Name & Headline -->
-    <div class="profile-names">
-      <h1>{{ user.full_name }}</h1>
-      <div class="profile-role">
-        <!-- LOGIC CHANGE: Only show department if it exists, otherwise just show 'Intern' -->
-        <span
-          >{% if user.department %}{{ user.department }} {% endif %}Intern</span
-        >
-        <span class="role-badge">{{ user.intern_id }}</span>
+<div
+  style="
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+    align-items: start;
+  "
+>
+  <!-- Left: Profile Card -->
+  <div class="glass-panel" style="border-radius: 20px; padding: 2rem">
+    <div class="profile-header">
+      <div class="profile-img-container">
+        {% if current_user.photo_url %}
+        <img
+          src="{{ url_for('uploaded_file', filename='profiles/' + current_user.photo_url) }}"
+          class="profile-img"
+        />
+        {% else %}
+        <img
+          src="https://ui-avatars.com/api/?name={{ current_user.full_name }}&background=6366f1&color=fff&size=200"
+          class="profile-img"
+        />
+        {% endif %}
+        <label for="photoUpload" class="edit-badge">
+          <i class="fas fa-camera" style="font-size: 0.8rem"></i>
+        </label>
       </div>
-
-      <!-- LOGIC CHANGE: Only show address line if address exists -->
-      {% if user.address %}
-      <p style="color: var(--text-muted); margin-top: 8px; font-size: 0.9rem">
-        <i class="fas fa-map-marker-alt" style="margin-right: 5px"></i> {{
-        user.address }}
+      <h2 style="font-size: 1.2rem; font-weight: 700">
+        {{ current_user.full_name }}
+      </h2>
+      <p style="color: var(--primary); font-size: 0.9rem">
+        {{ current_user.role }}
       </p>
-      {% endif %}
-    </div>
-  </div>
-</div>
-
-<!-- 2. The Main Content Grid -->
-<div class="settings-grid">
-  <!-- LEFT COLUMN: Personal Details -->
-  <div class="glass-panel" style="padding: 2rem">
-    <div class="section-title">
-      <span>Personal Information</span>
-      <i class="far fa-id-card" style="color: var(--primary)"></i>
-    </div>
-
-    <form action="{{ url_for('intern_profile') }}" method="POST">
-      <input type="hidden" name="update_profile" value="1" />
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem">
-        <div class="form-group">
-          <label class="form-label">Full Name</label>
-          <input
-            type="text"
-            class="custom-input"
-            value="{{ user.full_name }}"
-            disabled
-            title="Contact Admin to change name"
-          />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Email Address</label>
-          <input
-            type="email"
-            class="custom-input"
-            value="{{ user.email }}"
-            disabled
-          />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Phone Number</label>
-        <div style="position: relative">
-          <i
-            class="fas fa-phone"
-            style="
-              position: absolute;
-              left: 12px;
-              top: 14px;
-              color: var(--text-muted);
-              font-size: 0.9rem;
-            "
-          ></i>
-          <input
-            type="tel"
-            name="phone"
-            class="custom-input"
-            style="padding-left: 36px"
-            value="{{ user.phone }}"
-            placeholder="+91 00000 00000"
-          />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Residential Address</label>
-        <input
-          type="text"
-          name="address"
-          class="custom-input"
-          value="{{ user.address }}"
-        />
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Emergency Contact (Name & Phone)</label>
-        <input
-          type="text"
-          name="emergency_contact"
-          class="custom-input"
-          value="{{ user.emergency_contact }}"
-          placeholder="e.g. Parent - 9876543210"
-        />
-      </div>
-
-      <div style="margin-top: 2rem; text-align: right">
-        <button
-          type="submit"
-          class="btn-primary-block"
-          style="width: auto; padding-left: 2rem; padding-right: 2rem"
-        >
-          Save Changes
-        </button>
-      </div>
-    </form>
-  </div>
-
-  <!-- RIGHT COLUMN: Stats & Security -->
-  <div style="display: flex; flex-direction: column; gap: 1.5rem">
-    <!-- Analytics Box -->
-    <div class="glass-panel" style="padding: 1.5rem">
-      <h4 class="section-title" style="margin-bottom: 1rem; border: none">
-        Analytics
+      <div style="margin-top: 10px">
         <span
-          style="font-size: 0.7rem; color: var(--text-muted); font-weight: 400"
-          >Last 30 Days</span
-        >
-      </h4>
-
-      <div class="stats-row">
-        <div class="stat-item">
-          <span class="stat-val" style="color: var(--success)"
-            >{{ stats.attendance_count }}</span
-          >
-          <span class="stat-label">Days</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-val" style="color: var(--primary)"
-            >{{ stats.approved_submissions }}</span
-          >
-          <span class="stat-label">Projects</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-val" style="color: #f59e0b"
-            >{{ stats.reviews_count }}</span
-          >
-          <span class="stat-label">Reviews</span>
-        </div>
-      </div>
-
-      <a
-        href="{{ url_for('intern_attendance') }}"
-        style="
-          display: block;
-          text-align: center;
-          font-size: 0.85rem;
-          color: var(--primary);
-          text-decoration: none;
-          font-weight: 600;
-        "
-      >
-        View detailed attendance
-        <i class="fas fa-arrow-right" style="font-size: 0.7rem"></i>
-      </a>
-    </div>
-
-    <!-- Security Box -->
-    <div class="glass-panel" style="padding: 1.5rem">
-      <div class="section-title" style="color: var(--danger)">
-        <span>Security</span>
-        <i class="fas fa-shield-alt"></i>
-      </div>
-
-      <form action="{{ url_for('intern_profile') }}" method="POST">
-        <input type="hidden" name="change_password" value="1" />
-
-        <div class="form-group">
-          <label class="form-label">Current Password</label>
-          <input
-            type="password"
-            name="current_password"
-            class="custom-input"
-            required
-          />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">New Password</label>
-          <input
-            type="password"
-            name="new_password"
-            class="custom-input"
-            required
-          />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Confirm New Password</label>
-          <input
-            type="password"
-            name="confirm_password"
-            class="custom-input"
-            required
-          />
-        </div>
-
-        <button
-          type="submit"
-          class="btn-primary-block"
           style="
-            background: transparent;
-            border: 1px solid var(--danger);
-            color: var(--danger);
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
           "
         >
-          Update Password
-        </button>
-      </form>
+          {{ current_user.status }}
+        </span>
+      </div>
+    </div>
+
+    <div>
+      <div class="info-row">
+        <span class="info-label">Intern ID</span>
+        <span class="info-value">{{ current_user.intern_id }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">USN</span>
+        <span class="info-value">{{ current_user.usn }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Department</span>
+        <span class="info-value">{{ current_user.department }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Email</span>
+        <span class="info-value">{{ current_user.email }}</span>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- 3. CROPPING MODAL -->
-<div class="crop-modal-overlay" id="cropModal">
-  <div class="crop-modal-content">
-    <div
-      style="
-        padding: 1rem 1.5rem;
-        background: var(--glass-surface);
-        border-bottom: 1px solid var(--glass-border);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      "
-    >
-      <h3 style="margin: 0; font-size: 1.1rem; color: var(--text-main)">
-        Adjust Profile Photo
-      </h3>
-      <button
-        onclick="closeCropper()"
+  <!-- Right: Edit Details -->
+  <div class="glass-panel" style="border-radius: 20px; padding: 2rem">
+    <div x-data="{ activeTab: 'details' }">
+      <div
         style="
-          background: none;
-          border: none;
-          color: var(--text-muted);
-          cursor: pointer;
-          font-size: 1.2rem;
+          display: flex;
+          gap: 1rem;
+          border-bottom: 1px solid var(--glass-border);
+          margin-bottom: 2rem;
+          padding-bottom: 1rem;
         "
       >
-        &times;
-      </button>
-    </div>
-
-    <div class="crop-container">
-      <img id="imageToCrop" style="max-width: 100%; display: block" />
-    </div>
-
-    <div class="crop-controls">
-      <div style="display: flex; gap: 8px">
         <button
-          class="control-btn"
-          onclick="cropper.rotate(-90)"
-          title="Rotate Left"
+          @click="activeTab = 'details'"
+          :style="activeTab === 'details' ? 'color: var(--primary); border-bottom: 2px solid var(--primary);' : 'color: var(--text-muted)'"
+          style="
+            background: none;
+            border: none;
+            font-weight: 600;
+            padding-bottom: 5px;
+            transition: 0.3s;
+          "
         >
-          <i class="fas fa-undo"></i>
+          Edit Details
         </button>
         <button
-          class="control-btn"
-          onclick="cropper.rotate(90)"
-          title="Rotate Right"
+          @click="activeTab = 'security'"
+          :style="activeTab === 'security' ? 'color: var(--primary); border-bottom: 2px solid var(--primary);' : 'color: var(--text-muted)'"
+          style="
+            background: none;
+            border: none;
+            font-weight: 600;
+            padding-bottom: 5px;
+            transition: 0.3s;
+          "
         >
-          <i class="fas fa-redo"></i>
-        </button>
-        <button class="control-btn" onclick="cropper.zoom(0.1)" title="Zoom In">
-          <i class="fas fa-search-plus"></i>
-        </button>
-        <button
-          class="control-btn"
-          onclick="cropper.zoom(-0.1)"
-          title="Zoom Out"
-        >
-          <i class="fas fa-search-minus"></i>
+          Security
         </button>
       </div>
-      <div>
-        <button class="action-btn btn-cancel" onclick="closeCropper()">
-          Cancel
-        </button>
-        <button class="action-btn btn-save-crop" id="btnCropSave">
-          <span id="saveText">Save Photo</span>
-          <i
-            class="fas fa-spinner fa-spin"
-            id="saveSpinner"
+
+      <!-- Edit Form -->
+      <div x-show="activeTab === 'details'" x-transition>
+        <form
+          action="{{ url_for('intern_profile') }}"
+          method="POST"
+          enctype="multipart/form-data"
+        >
+          <input type="hidden" name="update_profile" value="1" />
+
+          <!-- Hidden file input triggered by camera icon -->
+          <input
+            type="file"
+            id="photoUpload"
+            name="cropped_image"
             style="display: none"
-          ></i>
-        </button>
+          />
+
+          <div class="input-group">
+            <label class="info-label">Phone Number</label>
+            <input
+              type="tel"
+              name="phone"
+              class="input-field"
+              value="{{ current_user.phone or '' }}"
+              placeholder="+91 99999 99999"
+            />
+          </div>
+
+          <div class="input-group">
+            <label class="info-label">Current Address</label>
+            <input
+              type="text"
+              name="address"
+              class="input-field"
+              value="{{ current_user.address or '' }}"
+              placeholder="Enter your address"
+            />
+          </div>
+
+          <div class="input-group">
+            <label class="info-label">Emergency Contact</label>
+            <input
+              type="tel"
+              name="emergency_contact"
+              class="input-field"
+              value="{{ current_user.emergency_contact or '' }}"
+              placeholder="Parent/Guardian Phone"
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="btn"
+            style="
+              background: var(--primary);
+              color: white;
+              padding: 10px 24px;
+              border-radius: 8px;
+              margin-top: 1rem;
+              border: none;
+            "
+          >
+            Save Changes
+          </button>
+        </form>
+      </div>
+
+      <!-- Security Form -->
+      <div x-show="activeTab === 'security'" x-transition x-cloak>
+        <form action="{{ url_for('intern_profile') }}" method="POST">
+          <input type="hidden" name="change_password" value="1" />
+
+          <div class="input-group">
+            <label class="info-label">Current Password</label>
+            <input
+              type="password"
+              name="current_password"
+              class="input-field"
+              required
+            />
+          </div>
+
+          <div class="input-group">
+            <label class="info-label">New Password</label>
+            <input
+              type="password"
+              name="new_password"
+              class="input-field"
+              required
+            />
+          </div>
+
+          <div class="input-group">
+            <label class="info-label">Confirm Password</label>
+            <input
+              type="password"
+              name="confirm_password"
+              class="input-field"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="btn"
+            style="
+              background: var(--danger);
+              color: white;
+              padding: 10px 24px;
+              border-radius: 8px;
+              margin-top: 1rem;
+              border: none;
+            "
+          >
+            Update Password
+          </button>
+        </form>
       </div>
     </div>
   </div>
 </div>
-
-<!-- Cropper JS Logic -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-<script>
-  let cropper;
-  const fileInput = document.getElementById("photo-upload");
-  const modal = document.getElementById("cropModal");
-  const imageElement = document.getElementById("imageToCrop");
-  const saveBtn = document.getElementById("btnCropSave");
-
-  // 1. Listen for file selection
-  fileInput.addEventListener("change", function (e) {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      const file = files[0];
-
-      // Only allow images
-      if (!file.type.startsWith("image/")) {
-        alert("Please select an image file.");
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = function (evt) {
-        // Set image source
-        imageElement.src = evt.target.result;
-
-        // Show Modal
-        modal.style.display = "flex";
-
-        // Initialize Cropper (Destroy old one if exists)
-        if (cropper) {
-          cropper.destroy();
-        }
-
-        cropper = new Cropper(imageElement, {
-          aspectRatio: 1, // 1:1 for square avatars
-          viewMode: 1, // Restrict crop box to image size
-          background: false,
-          autoCropArea: 0.8,
-        });
-      };
-      reader.readAsDataURL(file);
-    }
-  });
-
-  // 2. Close Modal function
-  function closeCropper() {
-    modal.style.display = "none";
-    fileInput.value = ""; // Reset input so same file can be selected again
-    if (cropper) {
-      cropper.destroy();
-      cropper = null;
-    }
-  }
-
-  // 3. Save Logic
-  saveBtn.addEventListener("click", function () {
-    if (!cropper) return;
-
-    // UI Feedback
-    const saveText = document.getElementById("saveText");
-    const saveSpinner = document.getElementById("saveSpinner");
-    saveText.style.display = "none";
-    saveSpinner.style.display = "inline-block";
-    saveBtn.disabled = true;
-
-    // Get the cropped canvas
-    cropper
-      .getCroppedCanvas({
-        width: 300, // Resize for optimization
-        height: 300,
-      })
-      .toBlob((blob) => {
-        // Create FormData to simulate form submission
-        const formData = new FormData();
-        formData.append("update_profile", "1");
-        formData.append("cropped_image", blob, "avatar.png");
-
-        // Send via Fetch
-        fetch("{{ url_for('intern_profile') }}", {
-          method: "POST",
-          body: formData,
-        })
-          .then((response) => {
-            if (response.ok) {
-              window.location.reload(); // Reload to show new image
-            } else {
-              alert("Error uploading image. Please try again.");
-              resetBtn();
-            }
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-            alert("An error occurred.");
-            resetBtn();
-          });
-      });
-  });
-
-  function resetBtn() {
-    document.getElementById("saveText").style.display = "inline";
-    document.getElementById("saveSpinner").style.display = "none";
-    saveBtn.disabled = false;
-  }
-</script>
 {% endblock %}
