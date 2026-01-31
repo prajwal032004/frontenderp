@@ -22,19 +22,14 @@ from datetime import datetime, timedelta
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 
-# ============================================================================
-# FLASK APP CONFIGURATION
-# ============================================================================
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
-# Configuration from environment
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'change-this-in-production')
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=365)
-app.config['SESSION_COOKIE_SECURE'] = True  # HTTPS only
+app.config['SESSION_COOKIE_SECURE'] = True  
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
-# Backend API Configuration
 BACKEND_URL = os.environ.get('BACKEND_API_URL', 'http://localhost:5001')
 BACKEND_API_KEY = os.environ.get('BACKEND_API_KEY', 'your-secret-api-key')
 
@@ -43,12 +38,7 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 login_manager.session_protection = 'basic'
 
-# ============================================================================
-# HELPER FUNCTIONS - API COMMUNICATION
-# ============================================================================
-
 def get_api_headers(include_auth=True):
-    """Generate headers for backend API requests"""
     headers = {
         'Content-Type': 'application/json',
         'X-API-Key': BACKEND_API_KEY
@@ -980,6 +970,15 @@ def api_unread_notifications():
         return jsonify({'count': result.get('count', 0)})
     return jsonify({'count': 0})
 
+@app.route('/debug-files')
+def debug_files():
+    """Temporarily check what files exist on Vercel"""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    files = []
+    for root, dirs, filenames in os.walk(current_dir):
+        for filename in filenames:
+            files.append(os.path.join(root, filename))
+    return '<br>'.join(files)
 # ============================================================================
 # ERROR HANDLERS
 # ============================================================================
