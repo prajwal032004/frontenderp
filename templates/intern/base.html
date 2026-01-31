@@ -1,0 +1,1103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Dashboard{% endblock %} | Shramic ERP</title>
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Primary Meta Tags -->
+    <meta
+      name="description"
+      content="Shramic ERP - Intelligent Internship Management Portal. Manage tasks, attendance, and performance seamlessly."
+    />
+    <meta name="theme-color" content="#0f172a" />
+
+    <!-- Dynamic Favicon (User Profile or Default 'S') -->
+    {% if current_user.is_authenticated and current_user.photo_url %}
+    <link
+      rel="icon"
+      href="{{ url_for('uploaded_file', filename='profiles/' + current_user.photo_url) }}"
+    />
+    {% else %}
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%236366f1'/%3E%3Cstop offset='100%25' style='stop-color:%23818cf8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='120' fill='url(%23g)'/%3E%3Cpath d='M340 160h-60c-40 0-40 20-40 40s0 40 40 40h20c50 0 80 30 80 80s-40 90-100 90h-80v-50h60c40 0 40-20 40-40s0-40-40-40h-20c-50 0-80-30-80-80s40-90 100-90h80v50z' fill='white'/%3E%3C/svg%3E"
+    />
+    {% endif %}
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Shramic ERP | Intern Portal" />
+    <meta
+      property="og:description"
+      content="Intelligent Internship Management System"
+    />
+    <meta
+      property="og:image"
+      content="https://ui-avatars.com/api/?name=Shramic+ERP&background=6366f1&color=fff&size=512"
+    />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <!-- Alpine.js -->
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+
+    <!-- Custom CSS -->
+    <style>
+      :root {
+        /* DARK MODE (Default) */
+        --bg-body: #0f172a;
+        --bg-gradient:
+          radial-gradient(
+            circle at 0% 0%,
+            rgba(99, 102, 241, 0.15) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 100% 100%,
+            rgba(139, 92, 246, 0.15) 0%,
+            transparent 50%
+          );
+
+        /* Glass Components */
+        --glass-surface: rgba(30, 41, 59, 0.7);
+        --glass-border: rgba(255, 255, 255, 0.08);
+        --glass-highlight: rgba(255, 255, 255, 0.05);
+        --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+
+        /* Text */
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+
+        /* Brand Colors */
+        --primary: #6366f1;
+        --primary-glow: rgba(99, 102, 241, 0.5);
+        --success: #10b981;
+        --danger: #ef4444;
+
+        /* Dimensions */
+        --sidebar-width: 280px;
+        --header-height: 80px;
+      }
+
+      [data-theme="light"] {
+        --bg-body: #f8fafc;
+        --bg-gradient: radial-gradient(
+          circle at 0% 0%,
+          rgba(99, 102, 241, 0.05) 0%,
+          transparent 50%
+        );
+        --glass-surface: rgba(255, 255, 255, 0.85);
+        --glass-border: rgba(0, 0, 0, 0.05);
+        --glass-highlight: rgba(0, 0, 0, 0.02);
+        --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+        --text-main: #1e293b;
+        --text-muted: #64748b;
+      }
+
+      /* RESET & BASE */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        outline: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+      [x-cloak] {
+        display: none !important;
+      }
+
+      body {
+        font-family: "Outfit", sans-serif;
+        background-color: var(--bg-body);
+        background-image: var(--bg-gradient);
+        background-attachment: fixed;
+        background-size: cover;
+        color: var(--text-main);
+        min-height: 100vh;
+        display: flex;
+        overflow: hidden;
+        transition: background 0.5s ease;
+      }
+      body {
+        cursor:
+          url("data:image/svg+xml;utf8,<svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M3 3L10.07 19.97L12.9 12.9L19.97 10.07L3 3Z' fill='%23f8fafc' stroke='%230f172a' stroke-width='1.5' stroke-linejoin='round'/></svg>")
+            3 3,
+          auto;
+      }
+
+      a,
+      button,
+      .btn,
+      .icon-btn,
+      .nav-link,
+      input[type="submit"],
+      select,
+      .dropdown-item,
+      .user-pill {
+        cursor:
+          url("data:image/svg+xml;utf8,<svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M3 3L10.07 19.97L12.9 12.9L19.97 10.07L3 3Z' fill='%236366f1' stroke='%23ffffff' stroke-width='1.5' stroke-linejoin='round'/><circle cx='3' cy='3' r='3' fill='%236366f1' fill-opacity='0.5'/></svg>")
+            3 3,
+          pointer !important;
+      }
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--glass-border);
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--primary);
+      }
+
+      /* UTILITY CLASSES */
+      .glass-panel {
+        background: var(--glass-surface);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--glass-shadow);
+      }
+
+      .app-container {
+        display: flex;
+        width: 100%;
+        height: 100vh;
+      }
+
+      /* --- SIDEBAR --- */
+      .sidebar {
+        width: var(--sidebar-width);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid var(--glass-border);
+        z-index: 50;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .sidebar-header {
+        height: var(--header-height);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0 2rem;
+        border-bottom: 1px solid var(--glass-border);
+      }
+
+      .logo-box {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 800;
+        font-size: 1.3rem;
+        box-shadow: 0 0 20px var(--primary-glow);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .sidebar-nav {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1.5rem 0;
+      }
+
+      .nav-category {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--text-muted);
+        padding: 0 2rem;
+        margin-bottom: 0.8rem;
+        margin-top: 1.5rem;
+      }
+      .nav-category:first-child {
+        margin-top: 0;
+      }
+
+      .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 2rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
+        font-weight: 500;
+        font-size: 0.95rem;
+      }
+
+      .nav-link:hover {
+        color: var(--text-main);
+        background: var(--glass-highlight);
+      }
+
+      .nav-link.active {
+        color: white;
+        background: linear-gradient(
+          90deg,
+          rgba(99, 102, 241, 0.15) 0%,
+          transparent 100%
+        );
+        border-left-color: var(--primary);
+        text-shadow: 0 0 10px var(--primary-glow);
+      }
+      body[data-theme="dark"] .nav-link.active {
+        color: #ffffff;
+        background: linear-gradient(
+          90deg,
+          rgba(99, 102, 241, 0.22) 0%,
+          rgba(99, 102, 241, 0.08) 60%,
+          transparent 100%
+        );
+        border-left-color: var(--primary);
+        text-shadow: 0 0 12px var(--primary-glow);
+      }
+      body[data-theme="light"] .nav-link.active {
+        color: var(--primary);
+        background: linear-gradient(
+          90deg,
+          rgba(99, 102, 241, 0.14) 0%,
+          rgba(99, 102, 241, 0.06) 60%,
+          transparent 100%
+        );
+        border-left-color: var(--primary);
+        text-shadow: none;
+      }
+      @media (max-width: 992px) {
+        body[data-theme="dark"] .nav-link.active,
+        body[data-theme="light"] .nav-link.active {
+          background: rgba(99, 102, 241, 0.15);
+          border-left-width: 4px;
+          text-shadow: none;
+        }
+      }
+
+      .nav-link i {
+        width: 24px;
+        text-align: center;
+        font-size: 1.1rem;
+      }
+
+      /* --- MAIN CONTENT --- */
+      .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .top-header {
+        height: var(--header-height);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 2rem;
+        border-bottom: 1px solid var(--glass-border);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        position: relative;
+        z-index: 40;
+        transition:
+          background 0.3s ease,
+          border-color 0.3s ease;
+      }
+      body[data-theme="dark"] .top-header {
+        background: linear-gradient(
+          to right,
+          rgba(15, 23, 42, 0.85),
+          rgba(30, 41, 59, 0.65)
+        );
+      }
+      body[data-theme="light"] .top-header {
+        background: linear-gradient(
+          to right,
+          rgba(255, 255, 255, 0.9),
+          rgba(248, 250, 252, 0.7)
+        );
+      }
+
+      .page-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--text-main);
+        letter-spacing: -0.5px;
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 1.2rem;
+      }
+
+      /* Circular Buttons (Theme & Notif) */
+      .icon-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        border: 1px solid var(--glass-border);
+        background: var(--glass-highlight);
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+      .icon-btn:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+        box-shadow: 0 0 15px var(--primary-glow);
+        transform: translateY(-2px);
+      }
+      .icon-btn i {
+        font-size: 1.2rem;
+      }
+
+      /* Notification Badge */
+      .badge {
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        background: var(--danger);
+        color: white;
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 10px;
+        border: 2px solid var(--bg-body);
+        animation: pulse 2s infinite;
+      }
+
+      /* User Profile Pill */
+      .user-pill {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 6px 8px 6px 16px;
+        border-radius: 50px;
+        background: var(--glass-highlight);
+        border: 1px solid var(--glass-border);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      .user-pill:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .user-info {
+        text-align: right;
+        line-height: 1.2;
+      }
+      .user-name {
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: block;
+        color: var(--text-main);
+      }
+      .user-role {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        font-weight: 500;
+      }
+
+      .avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--glass-border);
+      }
+
+      /* --- DROPDOWNS --- */
+      .relative-container {
+        position: relative;
+      }
+
+      .custom-dropdown {
+        position: absolute;
+        top: 130%;
+        right: 0;
+        width: 260px;
+        border-radius: 16px;
+        padding: 8px;
+        z-index: 9999;
+        transform-origin: top right;
+
+        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+
+        transition:
+          background 0.3s ease,
+          box-shadow 0.3s ease,
+          border-color 0.3s ease;
+      }
+      body[data-theme="dark"] .custom-dropdown {
+        background: linear-gradient(
+          145deg,
+          rgba(30, 41, 59, 0.97),
+          rgb(15, 23, 42)
+        );
+      }
+      body[data-theme="light"] .custom-dropdown {
+        background: rgb(203 204 204);
+      }
+      @media (max-width: 640px) {
+        .custom-dropdown {
+          right: 120%;
+          transform: translateX(50%);
+          width: 92vw;
+          max-width: 264px;
+          padding: 8px;
+          border-radius: 14px;
+        }
+      }
+
+      /* Dropdown Links */
+      .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        color: var(--text-muted);
+        text-decoration: none;
+        border-radius: 10px;
+        transition: 0.2s;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+      }
+      .dropdown-item:hover {
+        background: var(--primary);
+        color: white;
+        transform: translateX(5px);
+      }
+      .dropdown-divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.1);
+        margin: 8px 0;
+      }
+
+      /* Notification Specifics */
+      .notif-box {
+        width: 340px;
+        padding: 0;
+        overflow: hidden;
+      }
+      .notif-header {
+        padding: 16px;
+        background: rgba(0, 0, 0, 0.2);
+        border-bottom: 1px solid var(--glass-border);
+        font-weight: 600;
+        color: var(--text-main);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .notif-body {
+        max-height: 300px;
+        overflow-y: auto;
+        padding: 0;
+      }
+
+      .notif-row {
+        padding: 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        gap: 12px;
+        transition: 0.2s;
+        text-decoration: none;
+      }
+      .notif-row:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+      .notif-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(99, 102, 241, 0.1);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .notif-content h4 {
+        font-size: 0.9rem;
+        color: var(--text-main);
+        margin-bottom: 2px;
+      }
+      .notif-content p {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        line-height: 1.4;
+      }
+
+      .notif-footer {
+        padding: 12px;
+        text-align: center;
+        background: rgba(0, 0, 0, 0.2);
+        border-top: 1px solid var(--glass-border);
+      }
+      .notif-footer a {
+        color: var(--primary);
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      /* --- CONTENT AREA --- */
+      .content-body {
+        flex: 1;
+        padding: 2rem;
+        overflow-y: auto;
+        position: relative;
+      }
+
+      /* --- MOBILE --- */
+      .mobile-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--text-main);
+        font-size: 1.5rem;
+        cursor: pointer;
+      }
+
+      @media (max-width: 992px) {
+        .sidebar {
+          position: fixed;
+          transform: translateX(-100%);
+          box-shadow: 20px 0 50px rgba(0, 0, 0, 0.5);
+        }
+        .sidebar.open {
+          transform: translateX(0);
+        }
+        .mobile-toggle {
+          display: block;
+          margin-right: 1rem;
+        }
+        .user-info {
+          display: none;
+        } /* Hide text on mobile, show only avatar */
+        .user-pill {
+          padding: 4px;
+          border-radius: 50%;
+        }
+        .user-pill i {
+          display: none;
+        }
+      }
+
+      /* --- ALERTS --- */
+      .alert {
+        padding: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        animation: slideDown 0.4s ease;
+      }
+      .alert-success {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid var(--success);
+        color: var(--success);
+      }
+      .alert-error {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid var(--danger);
+        color: var(--danger);
+      }
+
+      /* --- ANIMATIONS --- */
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 5px rgba(239, 68, 68, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+        }
+      }
+      @keyframes slideDown {
+        from {
+          transform: translateY(-20px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      /* Security Modal */
+      .security-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 10000;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+      }
+      .security-content {
+        padding: 3rem;
+        border: 1px solid var(--danger);
+        border-radius: 20px;
+        background: #1e1e1e;
+        text-align: center;
+      }
+      .logo-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        border-radius: 10px;
+      }
+      .logo-box {
+        border: 1px solid var(--glass-border);
+        transition:
+          background 0.3s ease,
+          box-shadow 0.3s ease;
+      }
+
+      body[data-theme="dark"] .logo-box {
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+      }
+
+      body[data-theme="light"] .logo-box {
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      }
+    </style>
+    {% block extra_head %}{% endblock %}
+  </head>
+  <body data-theme="dark" x-data="{ sidebarOpen: false }">
+    <!-- Security Warning -->
+    <div id="security-warning" class="security-modal">
+      <div class="security-content">
+        <i
+          class="fas fa-shield-alt"
+          style="font-size: 4rem; color: var(--danger); margin-bottom: 1rem"
+        ></i>
+        <h2
+          style="font-size: 2rem; color: var(--danger); margin-bottom: 0.5rem"
+        >
+          Security Alert
+        </h2>
+        <p
+          style="
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+          "
+        >
+          Action disabled by administrator.
+        </p>
+        <button
+          onclick="
+            document.getElementById('security-warning').style.display = 'none'
+          "
+          style="
+            padding: 10px 24px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+          "
+        >
+          Dismiss
+        </button>
+      </div>
+    </div>
+
+    <div class="app-container">
+      <!-- Sidebar -->
+      <aside class="sidebar glass-panel" :class="{ 'open': sidebarOpen }">
+        <div class="sidebar-header">
+          <div class="logo-box">
+            <img
+              src="{{ url_for('static', filename='images/favicon.png') }}"
+              alt="Shramic Logo"
+            />
+          </div>
+
+          <div>
+            <h1
+              style="
+                font-size: 1.2rem;
+                font-weight: 700;
+                letter-spacing: 0.5px;
+                color: var(--text-main);
+              "
+            >
+              SHRAMIC
+            </h1>
+            <span
+              style="
+                font-size: 0.65rem;
+                color: var(--primary);
+                font-weight: 600;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+              "
+              >Intern Portal</span
+            >
+          </div>
+        </div>
+
+        <nav class="sidebar-nav custom-scrollbar">
+          <div class="nav-category">Dashboard</div>
+          <a
+            href="{{ url_for('intern_dashboard') }}"
+            class="nav-link {{ 'active' if request.endpoint == 'intern_dashboard' }}"
+          >
+            <i class="fas fa-home"></i> <span>Overview</span>
+          </a>
+          <a
+            href="{{ url_for('intern_tasks') }}"
+            class="nav-link {{ 'active' if request.endpoint == 'intern_tasks' }}"
+          >
+            <i class="fas fa-tasks"></i> <span>My Tasks</span>
+          </a>
+          <a
+            href="{{ url_for('intern_attendance') }}"
+            class="nav-link {{ 'active' if request.endpoint == 'intern_attendance' }}"
+          >
+            <i class="fas fa-fingerprint"></i> <span>Attendance</span>
+          </a>
+
+          <div class="nav-category">Work & Progress</div>
+          <a
+            href="{{ url_for('intern_submit') }}"
+            class="nav-link {{ 'active' if request.endpoint == 'intern_submit' }}"
+          >
+            <i class="fas fa-paper-plane"></i> <span>Submit Work</span>
+          </a>
+          <a
+            href="{{ url_for('intern_submissions') }}"
+            class="nav-link {{ 'active' if request.endpoint == 'intern_submissions' }}"
+          >
+            <i class="fas fa-folder-open"></i> <span>Submissions</span>
+          </a>
+          <a
+            href="{{ url_for('intern_goals') }}"
+            class="nav-link {{ 'active' if request.endpoint == 'intern_goals' }}"
+          >
+            <i class="fas fa-bullseye"></i> <span>My Goals</span>
+          </a>
+
+          <div class="nav-category">Connect</div>
+          <a
+            href="{{ url_for('intern_messages') }}"
+            class="nav-link {{ 'active' if request.endpoint == 'intern_messages' }}"
+          >
+            <i class="fas fa-envelope"></i> <span>Messages</span>
+          </a>
+          <a
+            href="{{ url_for('intern_announcements') }}"
+            class="nav-link {{ 'active' if request.endpoint == 'intern_announcements' }}"
+          >
+            <i class="fas fa-bullhorn"></i> <span>Announcements</span>
+          </a>
+
+          <div class="nav-category">Personal</div>
+          <a
+            href="{{ url_for('intern_documents') }}"
+            class="nav-link {{ 'active' if request.endpoint == 'intern_documents' }}"
+          >
+            <i class="fas fa-file-contract"></i> <span>Documents</span>
+          </a>
+          <a
+            href="{{ url_for('intern_certificates') }}"
+            class="nav-link {{ 'active' if request.endpoint == 'intern_certificates' }}"
+          >
+            <i class="fas fa-award"></i> <span>My Certificates</span>
+          </a>
+          <a
+            href="{{ url_for('intern_leave') }}"
+            class="nav-link {{ 'active' if request.endpoint == 'intern_leave' }}"
+          >
+            <i class="fas fa-calendar-minus"></i> <span>Leave</span>
+          </a>
+        </nav>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Top Header -->
+        <header class="top-header">
+          <div style="display: flex; align-items: center">
+            <button class="mobile-toggle" @click="sidebarOpen = !sidebarOpen">
+              <i class="fas fa-bars"></i>
+            </button>
+            <h2 class="page-title">{% block page_title %}{% endblock %}</h2>
+          </div>
+
+          <div class="header-actions">
+            <!-- Theme Toggle -->
+            <button class="icon-btn" id="theme-btn" title="Toggle Theme">
+              <i class="fas fa-moon"></i>
+            </button>
+
+            <!-- Notifications Dropdown -->
+            <div class="relative-container" x-data="{ open: false }">
+              <button @click="open = !open" class="icon-btn">
+                <i class="far fa-bell"></i>
+                {% if unread_notifications > 0 %}
+                <span class="badge">{{ unread_notifications }}</span>
+                {% endif %}
+              </button>
+
+              <!-- Notification Popover -->
+              <div
+                x-show="open"
+                @click.away="open = false"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 transform scale-95 translateY(-10px)"
+                x-transition:enter-end="opacity-100 transform scale-100 translateY(0)"
+                x-cloak
+                class="custom-dropdown notif-box"
+              >
+                <div class="notif-header">
+                  <span>Notifications</span>
+                  {% if unread_notifications > 0 %}
+                  <span
+                    style="
+                      font-size: 0.7rem;
+                      background: var(--primary);
+                      padding: 2px 8px;
+                      border-radius: 10px;
+                      color: white;
+                    "
+                    >{{ unread_notifications }} New</span
+                  >
+                  {% endif %}
+                </div>
+
+                <div class="notif-body">
+                  {% if unread_notifications > 0 %}
+                  <a
+                    href="{{ url_for('intern_notifications') }}"
+                    class="notif-row"
+                  >
+                    <div class="notif-icon"><i class="fas fa-bell"></i></div>
+                    <div class="notif-content">
+                      <h4>System Alert</h4>
+                      <p>
+                        You have {{ unread_notifications }} unread notifications
+                        pending your review.
+                      </p>
+                    </div>
+                  </a>
+                  <a href="{{ url_for('intern_messages') }}" class="notif-row">
+                    <div class="notif-icon">
+                      <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="notif-content">
+                      <h4>Check Inbox</h4>
+                      <p>Stay updated with recent messages from admins.</p>
+                    </div>
+                  </a>
+                  {% else %}
+                  <div style="text-align: center; padding: 2rem 1rem">
+                    <i
+                      class="far fa-smile"
+                      style="
+                        font-size: 2rem;
+                        color: var(--text-muted);
+                        margin-bottom: 10px;
+                      "
+                    ></i>
+                    <p style="color: var(--text-muted); font-size: 0.9rem">
+                      No new notifications
+                    </p>
+                  </div>
+                  {% endif %}
+                </div>
+
+                <div class="notif-footer">
+                  <a href="{{ url_for('intern_notifications') }}"
+                    >View All Notifications</a
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Profile Dropdown (Pill Style) -->
+            <div class="relative-container" x-data="{ userMenuOpen: false }">
+              <div class="user-pill" @click="userMenuOpen = !userMenuOpen">
+                <div class="user-info">
+                  <span class="user-name">{{ current_user.full_name }}</span>
+                  <span class="user-role">{{ current_user.intern_id }}</span>
+                </div>
+                {% if current_user.photo_url %}
+                <img
+                  src="{{ url_for('uploaded_file', filename='profiles/' + current_user.photo_url) }}"
+                  class="avatar"
+                />
+                {% else %}
+                <img
+                  src="https://ui-avatars.com/api/?name={{ current_user.full_name }}&background=6366f1&color=fff"
+                  class="avatar"
+                />
+                {% endif %}
+                <i
+                  class="fas fa-chevron-down"
+                  style="font-size: 0.7rem; color: var(--text-muted)"
+                ></i>
+              </div>
+
+              <div
+                class="custom-dropdown"
+                x-show="userMenuOpen"
+                @click.away="userMenuOpen = false"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 transform translateY(-10px)"
+                x-transition:enter-end="opacity-100 transform translateY(0)"
+                x-cloak
+              >
+                <a href="{{ url_for('intern_profile') }}" class="dropdown-item">
+                  <i class="fas fa-user-circle"></i> My Profile
+                </a>
+                <a href="{{ url_for('intern_skills') }}" class="dropdown-item">
+                  <i class="fas fa-brain"></i> My Skills
+                </a>
+                <div class="dropdown-divider"></div>
+                <a
+                  href="{{ url_for('logout') }}"
+                  class="dropdown-item"
+                  style="color: var(--danger)"
+                >
+                  <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div class="content-body">
+          <!-- Flash Messages -->
+          {% with messages = get_flashed_messages(with_categories=true) %} {% if
+          messages %}
+          <div style="margin-bottom: 2rem">
+            {% for category, message in messages %}
+            <div
+              class="alert {{ 'alert-success' if category == 'success' else 'alert-error' }}"
+            >
+              <i
+                class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-exclamation-circle' }}"
+              ></i>
+              <span>{{ message }}</span>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %} {% endwith %} {% block content %}{% endblock %}
+
+          <footer
+            style="
+              margin-top: 3rem;
+              border-top: 1px solid var(--glass-border);
+              padding-top: 1.5rem;
+              text-align: center;
+              color: var(--text-muted);
+              font-size: 0.85rem;
+            "
+          >
+            &copy; {{ now.year }} Shramic ERP. Intelligent Internship
+            Management.
+          </footer>
+        </div>
+      </main>
+    </div>
+
+    <!-- Logic Scripts -->
+    <script>
+      // Service Worker Cleanup
+      if (navigator.serviceWorker) {
+        navigator.serviceWorker
+          .getRegistrations()
+          .then(function (registrations) {
+            for (let registration of registrations) {
+              registration.unregister();
+            }
+          });
+      }
+
+      // Theme Logic
+      const themeBtn = document.getElementById("theme-btn");
+      const themeIcon = themeBtn.querySelector("i");
+      const body = document.body;
+      const currentTheme = localStorage.getItem("shramic_theme") || "dark";
+      body.setAttribute("data-theme", currentTheme);
+      updateIcon(currentTheme);
+
+      themeBtn.addEventListener("click", () => {
+        const newTheme =
+          body.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        body.setAttribute("data-theme", newTheme);
+        localStorage.setItem("shramic_theme", newTheme);
+        updateIcon(newTheme);
+      });
+
+      function updateIcon(theme) {
+        if (theme === "dark") {
+          themeIcon.classList.remove("fa-sun");
+          themeIcon.classList.add("fa-moon");
+        } else {
+          themeIcon.classList.remove("fa-moon");
+          themeIcon.classList.add("fa-sun");
+        }
+      }
+
+      // Security
+      document.addEventListener("contextmenu", (event) => {
+        event.preventDefault();
+        document.getElementById("security-warning").style.display = "flex";
+      });
+
+      document.onkeydown = function (e) {
+        if (
+          e.keyCode == 123 ||
+          (e.ctrlKey &&
+            e.shiftKey &&
+            (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) ||
+          (e.ctrlKey && e.keyCode == 85)
+        ) {
+          return false;
+        }
+      };
+    </script>
+  </body>
+</html>

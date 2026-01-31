@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Certificate Verification | Shramic ERP</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary: #6366f1;
+        --success: #10b981;
+        --danger: #ef4444;
+        --bg: #0f172a;
+        --card: #1e293b;
+      }
+
+      body {
+        font-family: "Outfit", sans-serif;
+        background-color: var(--bg);
+        color: #f8fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        background-image: radial-gradient(
+          circle at 0% 0%,
+          rgba(99, 102, 241, 0.1) 0%,
+          transparent 50%
+        );
+      }
+
+      .verify-card {
+        background: var(--card);
+        width: 90%;
+        max-width: 500px;
+        padding: 3rem 2rem;
+        border-radius: 28px;
+        text-align: center;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .status-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2.5rem;
+      }
+
+      .success-icon {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+        border: 2px solid var(--success);
+      }
+      .error-icon {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border: 2px solid var(--danger);
+      }
+
+      .badge {
+        background: var(--success);
+        padding: 5px 15px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+        margin: 1rem 0;
+      }
+      .msg {
+        color: #94a3b8;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+      }
+
+      .info-table {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 16px;
+        overflow: hidden;
+        text-align: left;
+      }
+
+      .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      .info-row:last-child {
+        border: none;
+      }
+      .label {
+        color: #64748b;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+      .value {
+        font-weight: 600;
+        color: #fff;
+      }
+
+      .footer-brand {
+        margin-top: 2.5rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        opacity: 0.3;
+      }
+      .btn-home {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+        margin-top: 1.5rem;
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="verify-card">
+      {% if verified %}
+      <div class="status-icon success-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <span class="badge">Verified Authentic</span>
+      <h1>Verification Confirmed</h1>
+      <p class="msg">
+        This document is a legitimate internship certificate issued by Shramic
+        ERP Solutions.
+      </p>
+
+      <div class="info-table">
+        <div class="info-row">
+          <span class="label">Intern Name</span>
+          <span class="value">{{ cert.full_name }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">USN / ID</span>
+          <span class="value">{{ cert.usn }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Department</span>
+          <span class="value">{{ cert.department }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Role</span>
+          <span class="value">{{ cert.role }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Issue Date</span>
+          <span class="value">{{ cert.issue_date }}</span>
+        </div>
+      </div>
+      {% else %}
+      <div class="status-icon error-icon">
+        <i class="fas fa-times-circle"></i>
+      </div>
+      <h1 style="color: var(--danger)">Invalid Record</h1>
+      <p class="msg">
+        {{ error or "The provided verification code does not match any
+        certificate in our secure database." }}
+      </p>
+      {% endif %}
+
+      <div class="footer-brand">SHRAMIC ERP</div>
+      <a href="/" class="btn-home"
+        ><i class="fas fa-arrow-left"></i> Back to Portal</a
+      >
+    </div>
+  </body>
+</html>

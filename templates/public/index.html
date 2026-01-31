@@ -1,0 +1,1147 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Shramic ERP | Enterprise Internship OS</title>
+    <meta
+      name="description"
+      content="The operating system for modern internship programs. Track, Manage, Certify."
+    />
+
+    <!-- Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icons -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* 
+       * 1. DESIGN TOKENS 
+       * Theme: "Nebula Cream" - Professional, Tech-Forward, Warm
+       */
+      :root {
+        --bg-body: #fdfcf8;
+        --bg-glass: rgba(255, 255, 255, 0.7);
+        --bg-card: #ffffff;
+
+        /* Text */
+        --text-primary: #0f172a; /* Slate 900 */
+        --text-secondary: #475569; /* Slate 600 */
+        --text-tertiary: #94a3b8; /* Slate 400 */
+
+        /* Brand Colors */
+        --primary: #4f46e5; /* Indigo */
+        --primary-dark: #4338ca;
+        --primary-light: #e0e7ff;
+
+        --accent: #f59e0b; /* Amber */
+        --success: #10b981; /* Emerald */
+        --success-bg: #d1fae5;
+
+        /* Structure */
+        --max-width: 1240px;
+        --nav-height: 80px;
+        --radius-lg: 24px;
+        --radius-xl: 32px;
+
+        /* Depth */
+        --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow-md:
+          0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-xl:
+          0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        --shadow-color: 0 20px 40px -10px rgba(79, 70, 229, 0.15); /* Colored shadow */
+
+        --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* Reset & Base */
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        font-size: 16px;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      body {
+        font-family: "Manrope", sans-serif;
+        background-color: var(--bg-body);
+        color: var(--text-primary);
+        line-height: 1.6;
+        overflow-x: hidden;
+        /* Noise Texture */
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+      }
+
+      /* Typography */
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-family: "Space Grotesk", sans-serif;
+        line-height: 1.15;
+        color: var(--text-primary);
+      }
+
+      .gradient-text {
+        background: linear-gradient(135deg, var(--primary) 0%, #818cf8 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .container {
+        width: 90%;
+        max-width: var(--max-width);
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+      }
+
+      /* Buttons */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        padding: 0.9rem 2rem;
+        border-radius: 100px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: var(--transition);
+        cursor: pointer;
+        border: none;
+        outline: none;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+      }
+      .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+      }
+
+      .btn-secondary {
+        background: white;
+        color: var(--text-primary);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+      }
+      .btn-secondary:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: #f8fafc;
+      }
+
+      /* 
+       * 2. NAVIGATION 
+       */
+      .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: var(--nav-height);
+        z-index: 100;
+        transition: var(--transition);
+      }
+      .navbar.scrolled {
+        background: rgba(253, 252, 248, 0.9);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      }
+      .nav-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 100%;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+      }
+      .logo-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--primary);
+        color: white;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        transform: rotate(-5deg);
+        transition: var(--transition);
+      }
+      .logo:hover .logo-icon {
+        transform: rotate(0deg);
+      }
+      .logo-text {
+        font-family: "Space Grotesk";
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: var(--text-primary);
+      }
+
+      .nav-menu {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+        list-style: none;
+      }
+      .nav-link {
+        text-decoration: none;
+        color: var(--text-secondary);
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: var(--transition);
+      }
+      .nav-link:hover {
+        color: var(--primary);
+      }
+
+      .mobile-toggle {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--text-primary);
+        cursor: pointer;
+      }
+
+      /* 
+       * 3. HERO SECTION 
+       */
+      .hero {
+        padding-top: calc(var(--nav-height) + 4rem);
+        padding-bottom: 6rem;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Aesthetic Blobs */
+      .bg-blob {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        z-index: 0;
+        opacity: 0.6;
+        animation: float 10s infinite ease-in-out;
+      }
+      .blob-1 {
+        top: -10%;
+        left: -5%;
+        width: 500px;
+        height: 500px;
+        background: #e0e7ff;
+      }
+      .blob-2 {
+        bottom: 10%;
+        right: -5%;
+        width: 400px;
+        height: 400px;
+        background: #fef3c7;
+        animation-delay: -5s;
+      }
+
+      .hero-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 4rem;
+        align-items: center;
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 16px;
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        border-radius: 100px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+        backdrop-filter: blur(4px);
+      }
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--success);
+        border-radius: 50%;
+        box-shadow: 0 0 0 2px var(--success-bg);
+      }
+
+      .hero-title {
+        font-size: clamp(2.5rem, 5vw, 4.2rem);
+        margin-bottom: 1.5rem;
+        letter-spacing: -0.03em;
+      }
+      .hero-desc {
+        font-size: 1.15rem;
+        color: var(--text-secondary);
+        margin-bottom: 2.5rem;
+        max-width: 540px;
+      }
+
+      .avatar-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .avatars {
+        display: flex;
+      }
+      .avatar-img {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        border: 3px solid white;
+        object-fit: cover;
+        margin-left: -12px;
+        box-shadow: var(--shadow-sm);
+      }
+      .avatar-img:first-child {
+        margin-left: 0;
+      }
+
+      /* Glass Dashboard Mockup */
+      .mockup-wrapper {
+        position: relative;
+        perspective: 1500px;
+      }
+      .glass-card {
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        border-radius: var(--radius-xl);
+        padding: 2rem;
+        box-shadow: var(--shadow-color);
+        transform: rotateY(-6deg) rotateX(4deg);
+        transition: transform 0.5s ease-out;
+      }
+      .mockup-wrapper:hover .glass-card {
+        transform: rotateY(0) rotateX(0);
+      }
+
+      /* Data Rows in Mockup */
+      .data-row {
+        background: white;
+        padding: 1rem;
+        border-radius: 16px;
+        box-shadow: var(--shadow-sm);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .data-row:last-child {
+        margin-bottom: 0;
+      }
+      .row-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      .row-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: var(--primary-light);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+      }
+      .badge {
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .badge.success {
+        background: var(--success-bg);
+        color: var(--success);
+      }
+      .badge.pending {
+        background: #fef3c7;
+        color: #d97706;
+      }
+
+      /* 
+       * 4. FEATURES & STATS 
+       */
+      .feature-section {
+        padding: 6rem 0;
+        background: white;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2.5rem;
+        margin-top: 4rem;
+      }
+
+      .feature-card {
+        padding: 2.5rem;
+        border-radius: var(--radius-lg);
+        background: #f8fafc;
+        border: 1px solid transparent;
+        transition: var(--transition);
+      }
+      .feature-card:hover {
+        background: white;
+        border-color: rgba(79, 70, 229, 0.1);
+        box-shadow: var(--shadow-xl);
+        transform: translateY(-5px);
+      }
+      .feature-icon {
+        width: 56px;
+        height: 56px;
+        background: white;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        color: var(--primary);
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+      }
+      .feature-card:hover .feature-icon {
+        background: var(--primary);
+        color: white;
+      }
+
+      .stats-container {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2rem;
+        background: var(--primary);
+        border-radius: var(--radius-xl);
+        padding: 4rem 2rem;
+        margin: 4rem 0;
+        color: white;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .stat-item h3 {
+        font-size: 3rem;
+        margin-bottom: 0.5rem;
+        color: white;
+        letter-spacing: -1px;
+      }
+      .stat-item p {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      /* 
+       * 5. FOOTER 
+       */
+      .footer {
+        background: #fff;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        padding-top: 5rem;
+        padding-bottom: 2rem;
+      }
+      .footer-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1.5fr;
+        gap: 3rem;
+        margin-bottom: 3rem;
+      }
+
+      .footer-col h5 {
+        font-size: 1rem;
+        margin-bottom: 1.25rem;
+        color: var(--primary);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .footer-links li {
+        margin-bottom: 0.75rem;
+      }
+      .footer-links a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: 0.2s;
+        font-size: 0.95rem;
+      }
+      .footer-links a:hover {
+        color: var(--primary);
+        padding-left: 4px;
+      }
+
+      /* 
+       * 6. MOBILE RESPONSIVENESS (Crucial)
+       */
+      @media (max-width: 968px) {
+        .hero-grid {
+          grid-template-columns: 1fr;
+          text-align: center;
+          gap: 3rem;
+        }
+        .hero-text {
+          order: 2;
+        }
+        .mockup-wrapper {
+          order: 1;
+          max-width: 500px;
+          margin: 0 auto;
+        }
+        .hero-desc {
+          margin: 0 auto 2rem;
+        }
+        .avatar-group {
+          justify-content: center;
+        }
+        .stats-container {
+          grid-template-columns: repeat(2, 1fr);
+          padding: 3rem 1rem;
+        }
+      }
+
+      @media (max-width: 768px) {
+        :root {
+          --nav-height: 70px;
+        }
+
+        /* Mobile Menu Drawer */
+        .mobile-toggle {
+          display: block;
+          z-index: 101;
+          position: relative;
+        }
+        .nav-menu {
+          position: fixed;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          width: 85%;
+          max-width: 300px;
+          background: white;
+          flex-direction: column;
+          padding: 6rem 2rem;
+          align-items: flex-start;
+          transform: translateX(100%);
+          transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: -10px 0 40px rgba(0, 0, 0, 0.1);
+          z-index: 100;
+        }
+        .nav-menu.active {
+          transform: translateX(0);
+        }
+        .nav-menu .btn {
+          width: 100%;
+          margin-top: 1rem;
+        }
+
+        .hero {
+          padding-top: calc(var(--nav-height) + 2rem);
+        }
+        .hero-title {
+          font-size: 2.2rem;
+        }
+        .glass-card {
+          padding: 1.5rem;
+        }
+
+        .footer-grid {
+          grid-template-columns: 1fr;
+          gap: 2.5rem;
+        }
+        .stat-item h3 {
+          font-size: 2.5rem;
+        }
+      }
+
+      /* Animation Classes */
+      .reveal {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.6s ease-out;
+      }
+      .reveal.active {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-15px);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+      <div class="container nav-container">
+        <a href="/" class="logo">
+          <div class="logo-icon"><i class="ri-shining-2-fill"></i></div>
+          <span class="logo-text">Shramic</span>
+        </a>
+
+        <button class="mobile-toggle" id="menuToggle">
+          <i class="ri-menu-4-line"></i>
+        </button>
+
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="#features" class="nav-link">Platform</a></li>
+          <li><a href="#stats" class="nav-link">Impact</a></li>
+          <li>
+            <a href="{{ url_for('contact') }}" class="nav-link">Contact</a>
+          </li>
+
+          {% if current_user.is_authenticated %}
+          <li>
+            <a
+              href="{{ url_for('admin_dashboard' if current_user.is_admin else 'intern_dashboard') }}"
+              class="btn btn-primary"
+              style="color: white"
+            >
+              Dashboard
+            </a>
+          </li>
+          <li>
+            <a
+              href="{{ url_for('logout') }}"
+              class="nav-link"
+              style="color: #ef4444"
+              >Sign Out</a
+            >
+          </li>
+          {% else %}
+          <li><a href="{{ url_for('login') }}" class="nav-link">Login</a></li>
+          <li>
+            <a
+              href="{{ url_for('register') }}"
+              class="btn btn-primary"
+              style="color: white"
+              >Get Started</a
+            >
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="bg-blob blob-1"></div>
+      <div class="bg-blob blob-2"></div>
+
+      <div class="container hero-grid">
+        <!-- Text Content -->
+        <div class="hero-text">
+          <div class="reveal">
+            <span class="status-pill"
+              ><span class="status-dot"></span> ERP V4.1 Live</span
+            >
+          </div>
+          <h1 class="hero-title reveal">
+            The Operating System for <br /><span class="gradient-text"
+              >Modern Internships</span
+            >
+          </h1>
+          <p class="hero-desc reveal">
+            Stop managing interns with spreadsheets. Track geo-tagged
+            attendance, manage complex task workflows, and issue verifiable
+            credentials.
+          </p>
+
+          <div
+            class="reveal"
+            style="
+              display: flex;
+              gap: 1rem;
+              flex-wrap: wrap;
+              margin-bottom: 3rem;
+            "
+          >
+            {% if not current_user.is_authenticated %}
+            <a href="{{ url_for('register') }}" class="btn btn-primary"
+              >Create Account</a
+            >
+            <a href="#features" class="btn btn-secondary">View Demo</a>
+            {% else %}
+            <a href="{{ url_for('intern_dashboard') }}" class="btn btn-primary"
+              >Go to App</a
+            >
+            {% endif %}
+          </div>
+
+          <!-- Dynamic Social Proof -->
+          <div class="avatar-group reveal">
+            <div class="avatars">
+              {% if active_avatars %} {% for avatar in active_avatars %}
+              <img
+                src="{{ url_for('static', filename='uploads/profiles/' + avatar) }}"
+                class="avatar-img"
+                onerror="
+                  this.src =
+                    'https://ui-avatars.com/api/?name=User&background=random&color=fff'
+                "
+                alt="Active User"
+              />
+              {% endfor %} {% else %}
+              <img
+                src="https://ui-avatars.com/api/?name=A&background=random"
+                class="avatar-img"
+              />
+              <img
+                src="https://ui-avatars.com/api/?name=B&background=random"
+                class="avatar-img"
+              />
+              <img
+                src="https://ui-avatars.com/api/?name=C&background=random"
+                class="avatar-img"
+              />
+              {% endif %}
+            </div>
+            <div>
+              <div
+                style="
+                  font-weight: 700;
+                  color: var(--text-primary);
+                  line-height: 1;
+                "
+              >
+                {{ total_interns }} Active Users
+              </div>
+              <div style="font-size: 0.85rem; color: var(--text-secondary)">
+                From {{ total_depts }} Departments
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Glass UI Mockup -->
+        <div class="mockup-wrapper reveal">
+          <div class="glass-card">
+            <!-- Header Row -->
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 2rem;
+              "
+            >
+              <div>
+                <div
+                  style="
+                    font-size: 0.85rem;
+                    color: var(--text-secondary);
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                  "
+                >
+                  Attendance
+                </div>
+                <div
+                  style="
+                    font-size: 2rem;
+                    font-weight: 700;
+                    color: var(--text-primary);
+                  "
+                >
+                  {{ attendance_rate }}%
+                </div>
+              </div>
+              <div
+                style="
+                  width: 48px;
+                  height: 48px;
+                  background: white;
+                  border-radius: 50%;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  color: var(--primary);
+                  box-shadow: var(--shadow-md);
+                "
+              >
+                <i class="ri-pie-chart-2-fill" style="font-size: 1.5rem"></i>
+              </div>
+            </div>
+
+            <!-- Dynamic List -->
+            {% if recent_submissions %} {% for sub in recent_submissions %}
+            <div class="data-row">
+              <div class="row-left">
+                <img
+                  src="{{ url_for('static', filename='uploads/profiles/' + sub.photo_url) if sub.photo_url else 'https://ui-avatars.com/api/?name=' + sub.full_name }}"
+                  style="
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 10px;
+                    object-fit: cover;
+                  "
+                  alt="User"
+                />
+                <div>
+                  <div
+                    style="
+                      font-weight: 600;
+                      font-size: 0.9rem;
+                      color: var(--text-primary);
+                    "
+                  >
+                    {{ sub.full_name }}
+                  </div>
+                  <div style="font-size: 0.8rem; color: var(--text-secondary)">
+                    {{ sub.title[:20] }}...
+                  </div>
+                </div>
+              </div>
+              {% if sub.status == 'APPROVED' %}
+              <span class="badge success"
+                ><i class="ri-check-line"></i> Done</span
+              >
+              {% else %}
+              <span class="badge pending">Review</span>
+              {% endif %}
+            </div>
+            {% endfor %} {% else %}
+            <div class="data-row">
+              <div class="row-left">
+                <div class="row-icon"><i class="ri-inbox-line"></i></div>
+                <div>
+                  <div style="font-weight: 600; font-size: 0.9rem">
+                    System Ready
+                  </div>
+                  <div style="font-size: 0.8rem; color: var(--text-secondary)">
+                    Waiting for data...
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Decorative Floating Card -->
+          <div
+            style="
+              position: absolute;
+              bottom: -20px;
+              left: -20px;
+              background: white;
+              padding: 1rem;
+              border-radius: 16px;
+              box-shadow: var(--shadow-xl);
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              animation: float 6s ease-in-out infinite;
+            "
+          >
+            <div
+              style="
+                background: var(--success-bg);
+                width: 40px;
+                height: 40px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--success);
+              "
+            >
+              <i class="ri-shield-check-fill"></i>
+            </div>
+            <div>
+              <div
+                style="
+                  font-size: 0.75rem;
+                  color: var(--text-secondary);
+                  text-transform: uppercase;
+                "
+              >
+                Security
+              </div>
+              <div style="font-weight: 700">Verified</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="feature-section">
+      <div class="container">
+        <div
+          class="reveal"
+          style="text-align: center; max-width: 700px; margin: 0 auto"
+        >
+          <span
+            style="
+              color: var(--primary);
+              font-weight: 700;
+              text-transform: uppercase;
+              letter-spacing: 2px;
+              font-size: 0.85rem;
+            "
+            >Why Shramic?</span
+          >
+          <h2 style="font-size: 2.5rem; margin-top: 0.5rem">
+            Everything you need to run <br />world-class internships
+          </h2>
+        </div>
+
+        <div class="feature-grid">
+          <div class="feature-card reveal">
+            <div class="feature-icon"><i class="ri-map-pin-user-line"></i></div>
+            <h3>Geo-Fenced Attendance</h3>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem">
+              Ensure interns are on-site with GPS & IP locking mechanisms.
+              Eliminate manual timesheet fraud.
+            </p>
+          </div>
+          <div class="feature-card reveal">
+            <div class="feature-icon"><i class="ri-kanban-view-2"></i></div>
+            <h3>Task Management</h3>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem">
+              Assign complex projects, set deadlines, and accept large file
+              submissions (up to 16MB) in one place.
+            </p>
+          </div>
+          <div class="feature-card reveal">
+            <div class="feature-icon">
+              <i class="ri-verified-badge-line"></i>
+            </div>
+            <h3>Verifiable Certificates</h3>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem">
+              Auto-generate QR-coded certificates upon completion. Instantly
+              verifiable by future employers.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section id="stats" class="container reveal">
+      <div class="stats-container">
+        <!-- Abstract Decoration -->
+        <div
+          style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+            background: url(&quot;https://www.transparenttextures.com/patterns/cubes.png&quot;);
+          "
+        ></div>
+
+        <div class="stat-item">
+          <h3 class="counter" data-target="{{ total_interns }}">0</h3>
+          <p>Active Users</p>
+        </div>
+        <div class="stat-item">
+          <h3 class="counter" data-target="{{ total_submissions }}">0</h3>
+          <p>Tasks Delivered</p>
+        </div>
+        <div class="stat-item">
+          <h3>99.9%</h3>
+          <p>Uptime</p>
+        </div>
+        <div class="stat-item">
+          <h3>24/7</h3>
+          <p>Support</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-grid">
+          <!-- BRAND -->
+          <div class="footer-col">
+            <a href="/" class="logo" style="margin-bottom: 1rem">
+              <div class="logo-icon">
+                <i class="ri-shining-2-fill"></i>
+              </div>
+              <span class="logo-text">Shramic</span>
+            </a>
+
+            <p
+              style="
+                color: var(--text-secondary);
+                font-size: 0.95rem;
+                max-width: 300px;
+              "
+            >
+              Bridging the gap between academic learning and industry execution
+              with advanced internship management tools.
+            </p>
+          </div>
+
+          <!-- PLATFORM -->
+          <div class="footer-col">
+            <h5>Platform</h5>
+            <ul class="footer-links">
+              <li><a href="/#features">Features</a></li>
+              <li><a href="/verify/certificate/">Verify Cert</a></li>
+
+              {% if current_user.is_authenticated %}
+              <li><a href="/intern/dashboard">Dashboard</a></li>
+              <li><a href="/logout">Logout</a></li>
+              {% else %}
+              <li><a href="/login">Login</a></li>
+              <li><a href="/register">Register</a></li>
+              {% endif %}
+            </ul>
+          </div>
+
+          <!-- COMPANY -->
+          <div class="footer-col">
+            <h5>Company</h5>
+            <ul class="footer-links">
+              <li><a href="https://www.shramic.com/">Main Website</a></li>
+              <li><a href="/about">About</a></li>
+              <li><a href="/contact">Contact</a></li>
+              <li><a href="/terms">Terms</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- BOTTOM -->
+        <div
+          style="
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            padding-top: 2rem;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-tertiary);
+          "
+        >
+          &copy; {{ now.year }} Shramic ERP Systems. All rights reserved. Made
+          in Bangalore.
+        </div>
+      </div>
+    </footer>
+
+    <!-- Logic -->
+    <script>
+      // 1. Scroll Reveal Animation
+      const revealElements = document.querySelectorAll(".reveal");
+      const revealOnScroll = () => {
+        const windowHeight = window.innerHeight;
+        revealElements.forEach((el) => {
+          const elementTop = el.getBoundingClientRect().top;
+          if (elementTop < windowHeight - 100) el.classList.add("active");
+        });
+      };
+      window.addEventListener("scroll", revealOnScroll);
+      window.addEventListener("load", revealOnScroll);
+
+      // 2. Navbar Scroll Effect
+      const navbar = document.getElementById("navbar");
+      window.addEventListener("scroll", () => {
+        if (window.scrollY > 20) navbar.classList.add("scrolled");
+        else navbar.classList.remove("scrolled");
+      });
+
+      // 3. Mobile Menu Toggle
+      const menuBtn = document.getElementById("menuToggle");
+      const navMenu = document.getElementById("navMenu");
+      const menuIcon = menuBtn.querySelector("i");
+
+      menuBtn.addEventListener("click", () => {
+        navMenu.classList.toggle("active");
+        if (navMenu.classList.contains("active")) {
+          menuIcon.classList.replace("ri-menu-4-line", "ri-close-large-line");
+          document.body.style.overflow = "hidden"; // Prevent background scroll
+        } else {
+          menuIcon.classList.replace("ri-close-large-line", "ri-menu-4-line");
+          document.body.style.overflow = "auto";
+        }
+      });
+
+      // Close menu when clicking a link
+      document.querySelectorAll(".nav-link").forEach((link) => {
+        link.addEventListener("click", () => {
+          navMenu.classList.remove("active");
+          menuIcon.classList.replace("ri-close-large-line", "ri-menu-4-line");
+          document.body.style.overflow = "auto";
+        });
+      });
+
+      // 4. Number Counter
+      let hasAnimated = false;
+      const statsSection = document.querySelector(".stats-container");
+
+      if (statsSection) {
+        window.addEventListener("scroll", () => {
+          if (
+            statsSection.getBoundingClientRect().top < window.innerHeight &&
+            !hasAnimated
+          ) {
+            document.querySelectorAll(".counter").forEach((counter) => {
+              const target = +counter.getAttribute("data-target");
+              const duration = 2000;
+              const increment = target / (duration / 20);
+              let current = 0;
+
+              const updateCount = () => {
+                current += increment;
+                if (current < target) {
+                  counter.innerText = Math.ceil(current).toLocaleString();
+                  requestAnimationFrame(updateCount);
+                } else {
+                  counter.innerText = target.toLocaleString();
+                }
+              };
+              updateCount();
+            });
+            hasAnimated = true;
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

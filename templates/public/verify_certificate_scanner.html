@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Verify Certificate | Shramic ERP</title>
+
+    <!-- Typography & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+
+    <!-- QR Library -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+    <style>
+      :root {
+        --bg-body: #fdfcf8;
+        --bg-card: #ffffff;
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --primary: #4f46e5;
+        --primary-dark: #4338ca;
+        --primary-light: #e0e7ff;
+        --success: #10b981;
+        --danger: #ef4444;
+        --nav-height: 80px;
+        --radius-lg: 24px;
+        --radius-xl: 32px;
+        --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      body {
+        font-family: "Manrope", sans-serif;
+        background-color: var(--bg-body);
+        color: var(--text-primary);
+        overflow-x: hidden;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      }
+
+      .container {
+        width: 90%;
+        max-width: 1240px;
+        margin: 0 auto;
+      }
+
+      /* Navigation */
+      .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: var(--nav-height);
+        z-index: 1000;
+        background: rgba(253, 252, 248, 0.9);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      }
+      .nav-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 100%;
+      }
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+      }
+      .logo-icon {
+        width: 38px;
+        height: 38px;
+        background: var(--primary);
+        color: white;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: rotate(-5deg);
+      }
+      .logo-text {
+        font-family: "Space Grotesk";
+        font-weight: 700;
+        font-size: 1.4rem;
+        color: var(--text-primary);
+      }
+
+      /* Main Section */
+      .main-content {
+        padding-top: calc(var(--nav-height) + 2rem);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+      }
+
+      .scanner-card {
+        background: white;
+        border-radius: var(--radius-xl);
+        padding: 2rem;
+        box-shadow: 0 20px 40px -10px rgba(79, 70, 229, 0.12);
+        width: 100%;
+        max-width: 500px;
+        text-align: center;
+        border: 1px solid rgba(0, 0, 0, 0.03);
+        animation: slideUp 0.6s ease-out;
+      }
+
+      .scanner-header h1 {
+        font-family: "Space Grotesk";
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+      }
+      .scanner-header p {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+      }
+
+      /* QR Reader Container */
+      #qr-reader {
+        width: 100% !important;
+        border: none !important;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        background: #000 !important;
+        position: relative;
+      }
+      /* Override internal library styles */
+      #qr-reader__scan_region {
+        background: #000 !important;
+      }
+      #qr-reader__dashboard {
+        display: none !important;
+      } /* We use our own controls */
+
+      /* Custom Controls */
+      .scanner-controls {
+        margin-top: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      #cameraSelect {
+        padding: 12px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        font-family: inherit;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        width: 100%;
+        cursor: pointer;
+        display: none; /* Only shown if multiple cameras found */
+      }
+
+      .status-msg {
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-top: 1rem;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .status-msg.info {
+        display: flex;
+        background: var(--primary-light);
+        color: var(--primary);
+      }
+      .status-msg.success {
+        display: flex;
+        background: #d1fae5;
+        color: var(--success);
+      }
+      .status-msg.error {
+        display: flex;
+        background: #fee2e2;
+        color: var(--danger);
+      }
+
+      .btn-back {
+        margin-top: 2rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: 0.2s;
+      }
+      .btn-back:hover {
+        color: var(--primary);
+      }
+
+      /* Animations */
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Mobile Specific Tweaks */
+      @media (max-width: 600px) {
+        .scanner-card {
+          border-radius: 0;
+          padding: 1.5rem;
+          box-shadow: none;
+          background: transparent;
+        }
+        .navbar {
+          height: 70px;
+        }
+        #qr-reader {
+          border-radius: 20px;
+        }
+      }
+      /* Back / Close button in navbar */
+      .navbar .nav-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+
+        padding: 8px 14px;
+        border-radius: 12px;
+
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-decoration: none;
+
+        background: rgba(0, 0, 0, 0.04);
+        transition: var(--transition);
+      }
+
+      /* Icon styling */
+      .navbar .nav-back i {
+        font-size: 1.4rem;
+        line-height: 1;
+      }
+
+      /* Hover */
+      .navbar .nav-back:hover {
+        background: var(--primary-light);
+        color: var(--primary);
+        transform: translateY(-1px);
+      }
+
+      /* Active (click feedback) */
+      .navbar .nav-back:active {
+        transform: scale(0.96);
+      }
+
+      /* Mobile optimization */
+      @media (max-width: 600px) {
+        .navbar .nav-back {
+          padding: 6px 10px;
+          font-size: 0.85rem;
+        }
+
+        .navbar .nav-back i {
+          font-size: 1.2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="container nav-container">
+        <a href="/" class="logo">
+          <div class="logo-icon"><i class="ri-shining-2-fill"></i></div>
+          <span class="logo-text">Shramic</span>
+        </a>
+        <a href="/" class="nav-back">
+          <i class="ri-close-line"></i>
+          Back
+        </a>
+      </div>
+    </nav>
+
+    <div class="main-content">
+      <div class="container" style="display: flex; justify-content: center">
+        <div class="scanner-card">
+          <div class="scanner-header">
+            <div
+              style="
+                width: 60px;
+                height: 60px;
+                background: var(--primary-light);
+                color: var(--primary);
+                border-radius: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.8rem;
+                margin: 0 auto 1rem;
+              "
+            >
+              <i class="ri-qr-scan-2-line"></i>
+            </div>
+            <h1>Verify Certificate</h1>
+            <p>Center the QR code in the frame to scan</p>
+          </div>
+
+          <!-- QR Scanner Target -->
+          <div id="qr-reader"></div>
+
+          <div class="scanner-controls">
+            <!-- Camera Switcher (Visible on Mobile) -->
+            <select id="cameraSelect"></select>
+
+            <div id="status" class="status-msg info">
+              <i class="ri-loader-4-line ri-spin"></i> Initializing Camera...
+            </div>
+          </div>
+
+          <a href="/" class="btn-back"
+            ><i class="ri-arrow-left-line"></i> Return to Home</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let html5QrCode;
+      const statusEl = document.getElementById("status");
+      const cameraSelect = document.getElementById("cameraSelect");
+
+      async function initScanner() {
+        try {
+          const devices = await Html5Qrcode.getCameras();
+
+          if (devices && devices.length > 0) {
+            // Populate camera selector if multiple cameras exist
+            if (devices.length > 1) {
+              cameraSelect.style.display = "block";
+              devices.forEach((device, index) => {
+                const option = document.createElement("option");
+                option.value = device.id;
+                option.text = device.label || `Camera ${index + 1}`;
+                cameraSelect.appendChild(option);
+              });
+            }
+
+            html5QrCode = new Html5Qrcode("qr-reader");
+            startScanner(devices[0].id); // Start with first camera
+          } else {
+            showStatus("error", "No cameras found on this device");
+          }
+        } catch (err) {
+          showStatus("error", "Camera permission denied");
+        }
+      }
+
+      function startScanner(cameraId) {
+        const config = {
+          fps: 15,
+          qrbox: { width: 250, height: 250 }, // Centered box
+          aspectRatio: 1.0,
+        };
+
+        html5QrCode
+          .start(
+            cameraId,
+            config,
+            (decodedText) => {
+              // Success
+              showStatus("success", "Code detected! Redirecting...");
+              handleVerification(decodedText);
+            },
+            (errorMessage) => {
+              // Constant scanning...
+            },
+          )
+          .then(() => {
+            statusEl.style.display = "none";
+          })
+          .catch((err) => {
+            showStatus("error", "Failed to start camera");
+          });
+      }
+
+      // Handle camera change
+      cameraSelect.addEventListener("change", async (e) => {
+        if (html5QrCode) {
+          await html5QrCode.stop();
+          startScanner(e.target.value);
+        }
+      });
+
+      function handleVerification(text) {
+        // Regex to extract code from URL or raw text
+        const codeMatch = text.match(/\/verify\/certificate\/([A-Z0-9]+)/i) || [
+          null,
+          text,
+        ];
+        const code = codeMatch[1] || text;
+
+        // Redirect after short delay for UX
+        setTimeout(() => {
+          window.location.href = `/verify/certificate/${code.trim()}`;
+        }, 800);
+      }
+
+      function showStatus(type, message) {
+        statusEl.className = `status-msg ${type}`;
+        statusEl.innerHTML =
+          type === "success"
+            ? `<i class="ri-checkbox-circle-line"></i> ${message}`
+            : `<i class="ri-error-warning-line"></i> ${message}`;
+        statusEl.style.display = "flex";
+      }
+
+      // Auto-init on load
+      window.addEventListener("load", () => {
+        setTimeout(initScanner, 500);
+      });
+    </script>
+  </body>
+</html>

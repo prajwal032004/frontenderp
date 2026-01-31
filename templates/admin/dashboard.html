@@ -1,0 +1,448 @@
+{% extends "admin/base.html" %} {% block page_title %}Executive Overview{%
+endblock %} {% block content %}
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+  /* Clickable KPI Cards */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .kpi-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    display: block;
+  }
+  .kpi-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+    border-color: rgba(79, 70, 229, 0.3);
+  }
+
+  .kpi-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 1rem;
+  }
+  .kpi-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    transition: 0.3s;
+  }
+  .kpi-card:hover .kpi-icon {
+    transform: scale(1.1) rotate(-5deg);
+  }
+
+  .kpi-value {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--text-main);
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+  .kpi-label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-top: 0.2rem;
+    font-weight: 500;
+  }
+
+  /* Chart Section */
+  .chart-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+  }
+
+  /* Interactive Lists */
+  .interactive-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.8rem;
+    border-radius: 8px;
+    transition: 0.2s;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    border-bottom: 1px solid transparent;
+  }
+  .interactive-row:hover {
+    background: #f8fafc;
+    transform: translateX(5px);
+    border-color: var(--border);
+  }
+
+  .user-pill {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .user-pill img {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+  }
+
+  /* Quick Actions Bar */
+  .quick-bar {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    overflow-x: auto;
+    padding-bottom: 5px;
+  }
+  .action-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.6rem 1.2rem;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: 0.2s;
+    white-space: nowrap;
+    box-shadow: var(--shadow-sm);
+  }
+  .action-chip:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    transform: translateY(-2px);
+  }
+  .action-chip i {
+    font-size: 1.1rem;
+  }
+
+  @media (max-width: 1024px) {
+    .chart-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<!-- 1. Quick Command Bar -->
+<div class="quick-bar">
+  <a href="{{ url_for('admin_approvals') }}" class="action-chip"
+    ><i class="ri-user-add-line"></i> Verify Users</a
+  >
+  <a href="{{ url_for('admin_tasks') }}" class="action-chip"
+    ><i class="ri-add-circle-line"></i> Assign Task</a
+  >
+  <a href="{{ url_for('admin_announcements') }}" class="action-chip"
+    ><i class="ri-megaphone-line"></i> Broadcast</a
+  >
+  <a href="{{ url_for('admin_submissions') }}" class="action-chip"
+    ><i class="ri-file-check-line"></i> Review Work</a
+  >
+</div>
+
+<!-- 2. KPI Cards (Clickable) -->
+<div class="kpi-grid">
+  <a href="{{ url_for('admin_interns') }}" class="kpi-card">
+    <div class="kpi-top">
+      <div class="kpi-icon" style="background: #eef2ff; color: var(--primary)">
+        <i class="ri-team-line"></i>
+      </div>
+      <span class="badge badge-neutral"
+        ><i class="ri-arrow-right-up-line"></i> Total</span
+      >
+    </div>
+    <div class="kpi-value">{{ total_interns }}</div>
+    <div class="kpi-label">Active Interns</div>
+  </a>
+
+  <a href="{{ url_for('admin_attendance') }}" class="kpi-card">
+    <div class="kpi-top">
+      <div class="kpi-icon" style="background: #ecfdf5; color: var(--success)">
+        <i class="ri-map-pin-user-line"></i>
+      </div>
+      <span class="badge badge-success">{{ attendance_rate }}% Rate</span>
+    </div>
+    <div class="kpi-value">{{ today_attendance }}</div>
+    <div class="kpi-label">Present Today</div>
+  </a>
+
+  <a href="{{ url_for('admin_submissions') }}" class="kpi-card">
+    <div class="kpi-top">
+      <div class="kpi-icon" style="background: #fffbeb; color: var(--warning)">
+        <i class="ri-stack-line"></i>
+      </div>
+      {% if pending_submissions > 0 %}
+      <span class="badge badge-warning">Action Req</span>
+      {% endif %}
+    </div>
+    <div class="kpi-value">{{ pending_submissions }}</div>
+    <div class="kpi-label">Pending Reviews</div>
+  </a>
+
+  <a href="{{ url_for('admin_approvals') }}" class="kpi-card">
+    <div class="kpi-top">
+      <div class="kpi-icon" style="background: #fef2f2; color: var(--danger)">
+        <i class="ri-user-follow-line"></i>
+      </div>
+      {% if pending_interns > 0 %}
+      <span class="badge badge-danger">New</span>
+      {% endif %}
+    </div>
+    <div class="kpi-value">{{ pending_interns }}</div>
+    <div class="kpi-label">Registrations</div>
+  </a>
+</div>
+
+<!-- 3. Visual Insights (Charts) -->
+<div class="chart-grid">
+  <!-- Line Chart: Attendance -->
+  <div class="card">
+    <div
+      style="
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+      "
+    >
+      <h3>Attendance Trends</h3>
+      <span style="font-size: 0.8rem; color: var(--text-light)"
+        >Last 7 Days</span
+      >
+    </div>
+    <div class="chart-container">
+      <canvas id="attendanceChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Doughnut Chart: Tasks -->
+  <div class="card">
+    <h3 style="margin-bottom: 1.5rem">Task Distribution</h3>
+    <div class="chart-container" style="height: 250px; margin-top: 1rem">
+      <canvas id="taskChart"></canvas>
+    </div>
+    <div
+      style="
+        text-align: center;
+        margin-top: 1rem;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+      "
+    >
+      Overview of current project statuses
+    </div>
+  </div>
+</div>
+
+<!-- 4. Detailed Data Lists -->
+<div class="chart-grid" style="grid-template-columns: 1.5fr 1fr">
+  <!-- Recent Attendance Feed -->
+  <div class="card">
+    <div
+      style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      "
+    >
+      <h3>Live Check-ins</h3>
+      <a
+        href="{{ url_for('admin_attendance') }}"
+        class="btn btn-outline"
+        style="padding: 0.4rem 0.8rem; font-size: 0.8rem"
+        >View All</a
+      >
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 0.5rem">
+      {% if recent_attendance %} {% for record in recent_attendance %}
+      <a
+        href="{{ url_for('admin_intern_detail', intern_id=record.id) }}"
+        class="interactive-row"
+      >
+        <div class="user-pill">
+          <img
+            src="{{ url_for('static', filename='uploads/profiles/' + record.photo_url) if record.photo_url else 'https://ui-avatars.com/api/?name=' + record.full_name }}"
+            alt="User"
+          />
+          <div>
+            <div style="font-weight: 600; color: var(--text-main)">
+              {{ record.full_name }}
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-light)">
+              {{ record.location or 'Remote' }}
+            </div>
+          </div>
+        </div>
+        <div style="text-align: right">
+          <div
+            style="
+              font-family: &quot;Space Grotesk&quot;, monospace;
+              font-weight: 600;
+              color: var(--text-main);
+            "
+          >
+            {{ record.check_in_time.split(' ')[1] }}
+          </div>
+          <span style="font-size: 0.7rem; color: var(--success)">On Time</span>
+        </div>
+      </a>
+      {% endfor %} {% else %}
+      <p style="text-align: center; color: var(--text-light); padding: 2rem">
+        No check-ins today.
+      </p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Top Performers Leaderboard -->
+  <div class="card">
+    <h3 style="margin-bottom: 1.5rem">Leaderboard</h3>
+    <div style="display: flex; flex-direction: column; gap: 0.5rem">
+      {% if top_performers %} {% for user in top_performers %}
+      <a
+        href="{{ url_for('admin_intern_detail', intern_id=user.id) }}"
+        class="interactive-row"
+      >
+        <div class="user-pill">
+          <div
+            style="
+              width: 32px;
+              height: 32px;
+              background: var(--primary);
+              color: white;
+              border-radius: 8px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-weight: 700;
+              font-size: 0.9rem;
+            "
+          >
+            #{{ loop.index }}
+          </div>
+          <div>
+            <div style="font-weight: 600; font-size: 0.9rem">
+              {{ user.full_name }}
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-light)">
+              {{ user.intern_id }}
+            </div>
+          </div>
+        </div>
+        <div style="text-align: right">
+          <div
+            style="font-weight: 700; font-size: 1.1rem; color: var(--primary)"
+          >
+            {{ user.submissions }}
+          </div>
+          <div style="font-size: 0.7rem; color: var(--text-light)">Tasks</div>
+        </div>
+      </a>
+      {% endfor %} {% else %}
+      <p style="text-align: center; color: var(--text-light); padding: 2rem">
+        No data available.
+      </p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Chart Configuration -->
+<script>
+  // 1. Attendance Chart Config
+  const ctxAttendance = document.getElementById('attendanceChart').getContext('2d');
+  const attendanceData = {{ chart_attendance | tojson }};
+
+  new Chart(ctxAttendance, {
+      type: 'line',
+      data: {
+          labels: attendanceData.labels,
+          datasets: [{
+              label: 'Unique Interns Present',
+              data: attendanceData.data,
+              borderColor: '#4F46E5', // Primary Color
+              backgroundColor: 'rgba(79, 70, 229, 0.1)',
+              tension: 0.4,
+              fill: true,
+              pointBackgroundColor: '#FFFFFF',
+              pointBorderColor: '#4F46E5',
+              pointBorderWidth: 2,
+              pointRadius: 4
+          }]
+      },
+      options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+              legend: { display: false }
+          },
+          scales: {
+              y: {
+                  beginAtZero: true,
+                  grid: { color: '#F1F5F9' },
+                  ticks: { stepSize: 1 }
+              },
+              x: {
+                  grid: { display: false }
+              }
+          }
+      }
+  });
+
+  // 2. Task Distribution Config
+  const ctxTasks = document.getElementById('taskChart').getContext('2d');
+  const taskData = {{ chart_tasks | tojson }};
+
+  new Chart(ctxTasks, {
+      type: 'doughnut',
+      data: {
+          labels: taskData.labels,
+          datasets: [{
+              data: taskData.data,
+              backgroundColor: [
+                  '#10B981', // Success
+                  '#F59E0B', // Warning
+                  '#EF4444', // Danger
+                  '#6366F1'  // Primary
+              ],
+              borderWidth: 0,
+              hoverOffset: 4
+          }]
+      },
+      options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+              legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } }
+          },
+          cutout: '75%'
+      }
+  });
+</script>
+{% endblock %}

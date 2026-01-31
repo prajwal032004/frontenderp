@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Admin Portal{% endblock %} | Shramic ERP</title>
+
+    <!-- Typography -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icons -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        /* Palette: Deep Navy & Electric Violet */
+        --bg-body: #f8fafc;
+        --bg-surface: #ffffff;
+        --bg-sidebar: #0f172a;
+
+        --primary: #6366f1; /* Indigo 500 */
+        --primary-hover: #4f46e5;
+        --secondary: #64748b;
+
+        --text-main: #1e293b;
+        --text-light: #94a3b8;
+        --text-white: #f8fafc;
+
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+
+        --border: #e2e8f0;
+        --sidebar-width: 280px;
+        --header-height: 70px;
+
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow-lg:
+          0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+        --radius: 12px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: var(--bg-body);
+        color: var(--text-main);
+        display: flex;
+        min-height: 100vh;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5 {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-weight: 700;
+      }
+
+      /* ========================
+           SIDEBAR
+           ======================== */
+      .sidebar {
+        width: var(--sidebar-width);
+        background: var(--bg-sidebar);
+        color: var(--text-white);
+        position: fixed;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s ease;
+        z-index: 50;
+      }
+
+      .brand {
+        height: var(--header-height);
+        display: flex;
+        align-items: center;
+        padding: 0 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 1.25rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        color: white;
+        text-decoration: none;
+      }
+      .brand i {
+        color: var(--primary);
+        margin-right: 10px;
+        font-size: 1.5rem;
+      }
+
+      .nav-menu {
+        flex: 1;
+        padding: 1.5rem 1rem;
+        overflow-y: auto;
+        list-style: none;
+      }
+      .nav-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-light);
+        margin: 1.5rem 0 0.5rem 1rem;
+      }
+
+      .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        color: #cbd5e1;
+        text-decoration: none;
+        transition: 0.2s;
+        font-weight: 500;
+        font-size: 0.95rem;
+      }
+      .nav-link:hover,
+      .nav-link.active {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
+      .nav-link.active {
+        border-left: 3px solid var(--primary);
+        border-radius: 4px 8px 8px 4px;
+      }
+      .nav-link i {
+        font-size: 1.1rem;
+        opacity: 0.8;
+      }
+
+      .user-profile {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+      }
+
+      /* ========================
+           MAIN CONTENT
+           ======================= */
+      .main-wrapper {
+        flex: 1;
+        margin-left: var(--sidebar-width);
+        display: flex;
+        flex-direction: column;
+        width: calc(100% - var(--sidebar-width));
+      }
+
+      /* Top Header */
+      .top-header {
+        height: var(--header-height);
+        background: var(--bg-surface);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 2rem;
+        position: sticky;
+        top: 0;
+        z-index: 40;
+      }
+      .page-title {
+        font-size: 1.1rem;
+        color: var(--text-main);
+      }
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .btn-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: 0.2s;
+        background: white;
+      }
+      .btn-icon:hover {
+        background: #f1f5f9;
+        color: var(--primary);
+      }
+
+      /* Content Area */
+      .content {
+        padding: 2rem;
+      }
+
+      /* Cards */
+      .card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Buttons */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0.6rem 1.2rem;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-decoration: none;
+        cursor: pointer;
+        transition: 0.2s;
+        border: 1px solid transparent;
+      }
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+        box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.4);
+      }
+      .btn-primary:hover {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+      }
+      .btn-outline {
+        background: white;
+        border-color: var(--border);
+        color: var(--text-main);
+      }
+      .btn-danger {
+        background: #fef2f2;
+        color: var(--danger);
+        border-color: #fecaca;
+      }
+
+      /* Tables */
+      .table-container {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+      }
+      th {
+        text-align: left;
+        padding: 1rem;
+        background: #f8fafc;
+        color: var(--text-secondary);
+        font-weight: 600;
+        border-bottom: 1px solid var(--border);
+      }
+      td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      tr:hover td {
+        background: #f8fafc;
+      }
+
+      /* Badges */
+      .badge {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+      .badge-success {
+        background: #dcfce7;
+        color: #166534;
+      }
+      .badge-warning {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .badge-danger {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+      .badge-neutral {
+        background: #f1f5f9;
+        color: #475569;
+      }
+
+      /* Mobile */
+      .mobile-toggle {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+      }
+
+      @media (max-width: 1024px) {
+        .sidebar {
+          transform: translateX(-100%);
+          width: 260px;
+        }
+        .sidebar.active {
+          transform: translateX(0);
+        }
+        .main-wrapper {
+          margin-left: 0;
+          width: 100%;
+        }
+        .mobile-toggle {
+          display: block;
+        }
+      }
+    </style>
+    {% block styles %}{% endblock %}
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <a href="/" class="brand">
+        <i class="ri-shining-2-fill"></i> Shramic ERP
+      </a>
+
+      <ul class="nav-menu">
+        <li class="nav-label">Overview</li>
+        <li>
+          <a
+            href="{{ url_for('admin_dashboard') }}"
+            class="nav-link {% if request.endpoint == 'admin_dashboard' %}active{% endif %}"
+            ><i class="ri-dashboard-3-line"></i> Dashboard</a
+          >
+        </li>
+        <li>
+          <a
+            href="{{ url_for('admin_analytics') }}"
+            class="nav-link {% if request.endpoint == 'admin_analytics' %}active{% endif %}"
+            ><i class="ri-bar-chart-box-line"></i> Analytics</a
+          >
+        </li>
+
+        <li class="nav-label">Management</li>
+        <li>
+          <a
+            href="{{ url_for('admin_interns') }}"
+            class="nav-link {% if request.endpoint == 'admin_interns' %}active{% endif %}"
+            ><i class="ri-team-line"></i> Interns</a
+          >
+        </li>
+        <li>
+          <a
+            href="{{ url_for('admin_approvals') }}"
+            class="nav-link {% if request.endpoint == 'admin_approvals' %}active{% endif %}"
+            ><i class="ri-user-add-line"></i> Approvals</a
+          >
+        </li>
+        <li>
+          <a
+            href="{{ url_for('admin_tasks') }}"
+            class="nav-link {% if request.endpoint == 'admin_tasks' %}active{% endif %}"
+            ><i class="ri-task-line"></i> Tasks</a
+          >
+        </li>
+
+        <li class="nav-label">Operations</li>
+        <li>
+          <a
+            href="{{ url_for('admin_submissions') }}"
+            class="nav-link {% if request.endpoint == 'admin_submissions' %}active{% endif %}"
+            ><i class="ri-file-list-3-line"></i> Submissions</a
+          >
+        </li>
+        <li>
+          <a
+            href="{{ url_for('admin_attendance') }}"
+            class="nav-link {% if request.endpoint == 'admin_attendance' %}active{% endif %}"
+            ><i class="ri-calendar-check-line"></i> Attendance</a
+          >
+        </li>
+        <li>
+          <a
+            href="{{ url_for('admin_leaves') }}"
+            class="nav-link {% if request.endpoint == 'admin_leaves' %}active{% endif %}"
+            ><i class="ri-hotel-bed-line"></i> Leaves</a
+          >
+        </li>
+
+        <li class="nav-label">Communication</li>
+        <li>
+          <a
+            href="{{ url_for('admin_messages') }}"
+            class="nav-link {% if request.endpoint == 'admin_messages' %}active{% endif %}"
+            ><i class="ri-chat-1-line"></i> Messages</a
+          >
+        </li>
+        <li>
+          <a
+            href="{{ url_for('admin_announcements') }}"
+            class="nav-link {% if request.endpoint == 'admin_announcements' %}active{% endif %}"
+            ><i class="ri-megaphone-line"></i> Announcements</a
+          >
+        </li>
+      </ul>
+
+      <div class="user-profile">
+        <img
+          src="{{ url_for('static', filename='uploads/profiles/' + current_user.photo_url) if current_user.photo_url else 'https://ui-avatars.com/api/?name=Admin&background=random' }}"
+          class="user-avatar"
+          alt="Admin"
+        />
+        <div style="flex: 1; overflow: hidden">
+          <div
+            style="
+              font-weight: 600;
+              font-size: 0.9rem;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+            "
+          >
+            {{ current_user.full_name }}
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-light)">
+            Administrator
+          </div>
+        </div>
+        <a
+          href="{{ url_for('logout') }}"
+          title="Logout"
+          style="color: var(--text-light)"
+          ><i class="ri-logout-box-r-line"></i
+        ></a>
+      </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+      <header class="top-header">
+        <div style="display: flex; align-items: center; gap: 1rem">
+          <button
+            class="mobile-toggle"
+            onclick="
+              document.getElementById('sidebar').classList.toggle('active')
+            "
+          >
+            <i class="ri-menu-2-line"></i>
+          </button>
+          <h2 class="page-title">
+            {% block page_title %}Dashboard{% endblock %}
+          </h2>
+        </div>
+
+        <div class="header-actions">
+          <div
+            style="
+              font-size: 0.85rem;
+              color: var(--text-secondary);
+              background: #f1f5f9;
+              padding: 0.4rem 0.8rem;
+              border-radius: 6px;
+            "
+          >
+            <i class="ri-calendar-line"></i> {{ now.strftime('%b %d, %Y') }}
+          </div>
+          <a href="{{ url_for('index') }}" class="btn-icon" title="View Site"
+            ><i class="ri-global-line"></i
+          ></a>
+        </div>
+      </header>
+
+      <div class="content">
+        <!-- Alert System -->
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if
+        messages %} {% for category, message in messages %}
+        <div
+          class="card"
+          style="margin-bottom: 1.5rem; padding: 1rem; border-left: 4px solid var(--{{ 'danger' if category == 'error' else 'success' }}); display: flex; align-items: center; gap: 10px;"
+        >
+          <i
+            class="ri-{{ 'error-warning' if category == 'error' else 'checkbox-circle' }}-fill"
+            style="color: var(--{{ 'danger' if category == 'error' else 'success' }}); font-size: 1.2rem;"
+          ></i>
+          {{ message }}
+        </div>
+        {% endfor %} {% endif %} {% endwith %} {% block content %}{% endblock %}
+      </div>
+    </div>
+  </body>
+</html>

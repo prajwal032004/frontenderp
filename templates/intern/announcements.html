@@ -1,0 +1,113 @@
+{% extends "intern/base.html" %} {% block title %}Announcements{% endblock %} {%
+block extra_head %}
+<style>
+  .timeline {
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 20px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--primary), transparent);
+  }
+
+  .ann-card {
+    margin-left: 50px;
+    margin-bottom: 2rem;
+    position: relative;
+    background: var(--glass-surface);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+  }
+
+  .timeline-dot {
+    position: absolute;
+    left: -39px;
+    top: 20px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--bg-color);
+    border: 4px solid var(--primary);
+    box-shadow: 0 0 10px var(--primary-glow);
+  }
+
+  .priority-HIGH .timeline-dot {
+    border-color: var(--danger);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+  }
+
+  .ann-meta {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid var(--glass-border);
+    padding-top: 0.5rem;
+  }
+</style>
+{% endblock %} {% block content %}
+<div style="padding: 2rem">
+  <h2 style="text-align: center; margin-bottom: 3rem; font-weight: 700">
+    Company Announcements
+  </h2>
+
+  <div class="timeline">
+    {% for ann in announcements %}
+    <div class="ann-card priority-{{ ann.priority }}">
+      <div class="timeline-dot"></div>
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: start;
+        "
+      >
+        <h3
+          style="
+            font-size: 1.2rem;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+          "
+        >
+          {{ ann.title }}
+        </h3>
+        {% if ann.priority == 'HIGH' %}
+        <span
+          style="
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+          "
+          >URGENT</span
+        >
+        {% endif %}
+      </div>
+
+      <p style="color: rgba(255, 255, 255, 0.8); line-height: 1.6">
+        {{ ann.content }}
+      </p>
+
+      <div class="ann-meta">
+        <span><i class="fas fa-user-tag"></i> {{ ann.created_by_name }}</span>
+        <span>{{ ann.created_at }}</span>
+      </div>
+    </div>
+    {% else %}
+    <p style="text-align: center; color: var(--text-muted)">
+      No announcements available.
+    </p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,1451 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register | Shramic ERP</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- Cropper.js CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial,
+          sans-serif;
+        background: #f9fafb;
+        min-height: 100vh;
+      }
+      .container {
+        display: flex;
+        min-height: 100vh;
+      }
+      .branding-side {
+        flex: 1;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 60px;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        order: 2;
+        animation: slideInFromRight 0.8s ease-out;
+      }
+      @keyframes slideInFromRight {
+        from {
+          opacity: 0;
+          transform: translateX(100px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      .branding-content {
+        max-width: 500px;
+      }
+      .logo-section {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 40px;
+        animation: fadeInUp 0.6s ease-out 0.4s both;
+      }
+      .logo-icon {
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+      }
+      .logo-text h1 {
+        font-size: 32px;
+        font-weight: 700;
+      }
+      .logo-text p {
+        font-size: 14px;
+        opacity: 0.9;
+      }
+      .branding-title {
+        font-size: 42px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        line-height: 1.2;
+        animation: fadeInUp 0.6s ease-out 0.6s both;
+      }
+      .branding-subtitle {
+        font-size: 18px;
+        line-height: 1.6;
+        opacity: 0.95;
+        margin-bottom: 40px;
+        animation: fadeInUp 0.6s ease-out 0.8s both;
+      }
+      .feature-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        animation: fadeInUp 0.6s ease-out 1s both;
+      }
+      .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .feature-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .form-side {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        overflow-y: auto;
+        order: 1;
+        animation: slideInFromLeft 0.8s ease-out;
+      }
+      @keyframes slideInFromLeft {
+        from {
+          opacity: 0;
+          transform: translateX(-100px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      .form-container {
+        max-width: 500px;
+        width: 100%;
+        margin: 20px 0;
+      }
+      .mobile-logo {
+        display: none;
+        text-align: center;
+        margin-bottom: 40px;
+      }
+      .mobile-logo-content {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .mobile-logo-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+      }
+      .mobile-logo-text {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1f2937;
+      }
+      .form-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        animation: fadeInUp 0.6s ease-out 0.3s both;
+      }
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .form-header h2 {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 8px;
+      }
+      .form-header p {
+        color: #6b7280;
+        margin-bottom: 30px;
+      }
+      .alert {
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .alert-error {
+        background: #fef2f2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+      }
+      .alert-success {
+        background: #f0fdf4;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+      }
+      .alert-info {
+        background: #eff6ff;
+        color: #1e40af;
+        border: 1px solid #bfdbfe;
+      }
+
+      /* Photo Upload Section */
+      .photo-upload-section {
+        margin-bottom: 24px;
+        text-align: center;
+        animation: fadeInUp 0.6s ease-out 0.5s both;
+      }
+      .photo-preview-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+      }
+      .photo-preview {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 4px solid #8b5cf6;
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+        background: #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+      }
+      .photo-preview:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+      }
+      .photo-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .photo-preview i {
+        font-size: 60px;
+        color: #9ca3af;
+      }
+      .photo-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .btn-photo {
+        padding: 10px 20px;
+        background: #8b5cf6;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .btn-photo:hover {
+        background: #7c3aed;
+        transform: translateY(-2px);
+      }
+      .btn-photo-secondary {
+        background: #6b7280;
+      }
+      .btn-photo-secondary:hover {
+        background: #4b5563;
+      }
+      .btn-photo-danger {
+        background: #ef4444;
+      }
+      .btn-photo-danger:hover {
+        background: #dc2626;
+      }
+
+      /* Camera Modal */
+      .camera-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+      }
+      .camera-modal.active {
+        display: flex;
+      }
+      .camera-container {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        max-width: 600px;
+        width: 90%;
+      }
+      .camera-container h3 {
+        margin-bottom: 20px;
+        color: #1f2937;
+        text-align: center;
+      }
+      #camera-video {
+        width: 100%;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        background: #000;
+      }
+      .camera-controls {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      /* Crop Modal */
+      .crop-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+      }
+      .crop-modal.active {
+        display: flex;
+      }
+      .crop-container {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        max-width: 700px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+      .crop-container h3 {
+        margin-bottom: 20px;
+        color: #1f2937;
+        text-align: center;
+      }
+      .crop-image-container {
+        max-height: 500px;
+        margin-bottom: 20px;
+        background: #000;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      #crop-image {
+        max-width: 100%;
+        display: block;
+      }
+      .crop-controls {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+      .form-group {
+        margin-bottom: 20px;
+      }
+      .form-group.full-width {
+        grid-column: 1 / -1;
+      }
+      .form-group.hidden {
+        display: none;
+      }
+      .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+      }
+      .form-label i {
+        color: #9ca3af;
+        margin-right: 8px;
+      }
+      .form-label .required {
+        color: #ef4444;
+        margin-left: 4px;
+      }
+      .form-input,
+      .form-select {
+        width: 100%;
+        padding: 14px 16px;
+        border: 1px solid #d1d5db;
+        border-radius: 12px;
+        font-size: 15px;
+        transition: all 0.2s;
+        outline: none;
+        font-family: inherit;
+      }
+      .form-input:focus,
+      .form-select:focus {
+        border-color: #8b5cf6;
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+      }
+      .password-container {
+        position: relative;
+      }
+      .password-toggle {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #9ca3af;
+        cursor: pointer;
+        padding: 5px;
+      }
+      .password-toggle:hover {
+        color: #6b7280;
+      }
+      .password-strength {
+        margin-top: 8px;
+        height: 4px;
+        background: #e5e7eb;
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .password-strength-bar {
+        height: 100%;
+        width: 0%;
+        transition: all 0.3s;
+        border-radius: 2px;
+      }
+      .password-strength-bar.weak {
+        width: 33%;
+        background: #ef4444;
+      }
+      .password-strength-bar.medium {
+        width: 66%;
+        background: #f59e0b;
+      }
+      .password-strength-bar.strong {
+        width: 100%;
+        background: #10b981;
+      }
+      .password-hint {
+        font-size: 12px;
+        color: #6b7280;
+        margin-top: 6px;
+      }
+      .form-checkbox {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 24px;
+      }
+      .form-checkbox input {
+        width: 18px;
+        height: 18px;
+        margin-top: 2px;
+        cursor: pointer;
+      }
+      .form-checkbox label {
+        font-size: 14px;
+        color: #6b7280;
+        line-height: 1.5;
+        cursor: pointer;
+      }
+      .form-checkbox label a {
+        color: #8b5cf6;
+        text-decoration: none;
+        font-weight: 500;
+      }
+      .form-checkbox label a:hover {
+        color: #7c3aed;
+        text-decoration: underline;
+      }
+      .btn-primary {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+      }
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+      }
+      .btn-primary:active {
+        transform: translateY(0);
+      }
+      .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .divider {
+        position: relative;
+        text-align: center;
+        margin: 30px 0;
+      }
+      .divider::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: #e5e7eb;
+      }
+      .divider span {
+        position: relative;
+        background: white;
+        padding: 0 20px;
+        color: #6b7280;
+        font-size: 14px;
+      }
+      .back-link {
+        text-align: center;
+      }
+      .back-link a {
+        color: #6b7280;
+        font-size: 14px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .back-link a:hover {
+        color: #8b5cf6;
+      }
+      .footer-text {
+        text-align: center;
+        color: #6b7280;
+        font-size: 14px;
+        margin-top: 24px;
+      }
+
+      /* Loading Spinner */
+      .spinner {
+        display: none;
+        width: 20px;
+        height: 20px;
+        border: 3px solid #fff;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (max-width: 1024px) {
+        .branding-side {
+          display: none;
+        }
+        .mobile-logo {
+          display: block;
+        }
+        .form-card {
+          padding: 30px;
+        }
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 640px) {
+        .form-card {
+          padding: 24px;
+        }
+        .form-header h2 {
+          font-size: 26px;
+        }
+        .photo-preview {
+          width: 120px;
+          height: 120px;
+        }
+        .photo-buttons {
+          flex-direction: column;
+        }
+        .btn-photo {
+          width: 100%;
+        }
+      }
+      /* ONLY for default-avatar.png */
+      .photo-preview img[src*="default-avatar.png"] {
+        width: 100%;
+        height: 147%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="branding-side">
+        <div class="branding-content">
+          <div class="logo-section">
+            <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+            <div class="logo-text">
+              <h1>Shramic</h1>
+              <p>Internship Management System</p>
+            </div>
+          </div>
+          <h2 class="branding-title">Join Our Team!</h2>
+          <p class="branding-subtitle">
+            Create your account and start your internship journey with us. Track
+            your progress, submit work, and grow professionally.
+          </p>
+          <div class="feature-list">
+            <div class="feature-item">
+              <div class="feature-icon"><i class="fas fa-user-check"></i></div>
+              <span>Quick & Easy Registration</span>
+            </div>
+            <div class="feature-item">
+              <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+              <span>Secure Account Protection</span>
+            </div>
+            <div class="feature-item">
+              <div class="feature-icon"><i class="fas fa-rocket"></i></div>
+              <span>Instant Dashboard Access</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-side">
+        <div class="form-container">
+          <div class="mobile-logo">
+            <div class="mobile-logo-content">
+              <div class="mobile-logo-icon">
+                <i class="fas fa-graduation-cap"></i>
+              </div>
+              <span class="mobile-logo-text">Shramic</span>
+            </div>
+          </div>
+
+          <div class="form-card">
+            <div class="form-header">
+              <h2>Create Account</h2>
+              <p>Fill in your details to get started</p>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %} {%
+            if messages %} {% for category, message in messages %}
+            <div
+              class="alert alert-{% if category == 'error' %}error{% elif category == 'success' %}success{% else %}info{% endif %}"
+            >
+              <i
+                class="fas {% if category == 'error' %}fa-exclamation-circle{% elif category == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %}"
+              ></i>
+              <span>{{ message }}</span>
+            </div>
+            {% endfor %} {% endif %} {% endwith %}
+
+            <!-- Photo Upload Section -->
+            <div class="photo-upload-section">
+              <div class="photo-preview-container">
+                <div class="photo-preview">
+                  <img
+                    id="photo-display"
+                    src="{{ url_for('static', filename='images/default-avatar.png') }}"
+                    alt="Profile Photo"
+                  />
+                </div>
+                <div class="photo-buttons">
+                  <button
+                    type="button"
+                    class="btn-photo"
+                    onclick="openCamera()"
+                    title="Requires camera permission"
+                  >
+                    <i class="fas fa-camera"></i> Take Photo
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-photo btn-photo-secondary"
+                    onclick="document.getElementById('photo-file').click()"
+                  >
+                    <i class="fas fa-upload"></i> Upload
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-photo btn-photo-danger"
+                    onclick="resetPhoto()"
+                    id="reset-photo-btn"
+                    style="display: none"
+                  >
+                    <i class="fas fa-times"></i> Remove
+                  </button>
+                </div>
+                <p style="font-size: 12px; color: #6b7280; margin-top: 10px">
+                  <i class="fas fa-info-circle"></i> Camera requires browser
+                  permission. Use upload if camera doesn't work.
+                </p>
+                <input
+                  type="file"
+                  id="photo-file"
+                  accept="image/*"
+                  style="display: none"
+                  onchange="handleFileUpload(event)"
+                />
+              </div>
+            </div>
+
+            <form method="POST" id="registration-form">
+              <input type="hidden" name="photo_data" id="photo_data" />
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-id-card"></i>USN<span class="required"
+                      >*</span
+                    >
+                  </label>
+                  <input
+                    type="text"
+                    name="usn"
+                    class="form-input"
+                    placeholder="e.g., 1CR21CS001"
+                    required
+                    maxlength="20"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-user"></i>Full Name<span class="required"
+                      >*</span
+                    >
+                  </label>
+                  <input
+                    type="text"
+                    name="full_name"
+                    class="form-input"
+                    placeholder="John Doe"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-phone"></i>Phone Number<span
+                      class="required"
+                      >*</span
+                    >
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    class="form-input"
+                    placeholder="9876543210"
+                    required
+                    pattern="[0-9]{10}"
+                    title="Please enter a valid 10-digit phone number"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-envelope"></i>Email Address<span
+                      class="required"
+                      >*</span
+                    >
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    class="form-input"
+                    placeholder="your.email@example.com"
+                    required
+                  />
+                </div>
+              </div>
+
+              <!-- Role and Department Row -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="fas fa-briefcase"></i>Role<span class="required"
+                      >*</span
+                    >
+                  </label>
+                  <select
+                    name="role"
+                    id="role-select"
+                    class="form-select"
+                    required
+                  >
+                    <option value="">Select Role</option>
+                    <option value="Backend Developer">Backend Developer</option>
+                    <option value="AIML">AIML</option>
+                    <option value="Flutter Web Intern">
+                      Flutter Web Intern
+                    </option>
+                    <option value="Flutter App Intern">
+                      Flutter App Intern
+                    </option>
+                    <option value="DevOps CI/CD">DevOps CI/CD</option>
+                  </select>
+                </div>
+
+                <div class="form-group" id="department-group">
+                  <label class="form-label">
+                    <i class="fas fa-building"></i>Department<span
+                      class="required"
+                      >*</span
+                    >
+                  </label>
+                  <select
+                    name="department"
+                    id="department-select"
+                    class="form-select"
+                    required
+                  >
+                    <option value="">Select Department</option>
+                    <option value="CSE(AI&ML)">CSE(AI&ML)</option>
+                    <option value="CSE">CSE</option>
+                    <option value="EC">EC</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Custom Fields Row (shown when either Role or Department is "Other") -->
+              <div
+                class="form-row"
+                id="custom-fields-row"
+                style="display: none; margin-top: -10px"
+              >
+                <div
+                  class="form-group"
+                  id="custom-role-group"
+                  style="display: none"
+                >
+                  <label class="form-label">
+                    <i class="fas fa-briefcase"></i>Specify Role<span
+                      class="required"
+                      >*</span
+                    >
+                  </label>
+                  <input
+                    type="text"
+                    name="custom_role"
+                    id="custom-role-input"
+                    class="form-input"
+                    placeholder="e.g., Frontend Developer"
+                  />
+                </div>
+
+                <div
+                  class="form-group"
+                  id="custom-department-group"
+                  style="display: none"
+                >
+                  <label class="form-label">
+                    <i class="fas fa-building"></i>Specify Department
+                  </label>
+                  <input
+                    type="text"
+                    name="custom_department"
+                    id="custom-department-input"
+                    class="form-input"
+                    placeholder="e.g., Mechanical"
+                  />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-lock"></i>Password<span class="required"
+                    >*</span
+                  >
+                </label>
+                <div class="password-container">
+                  <input
+                    type="password"
+                    name="password"
+                    id="password"
+                    class="form-input"
+                    placeholder="Create a strong password"
+                    required
+                    minlength="6"
+                    onkeyup="checkPasswordStrength()"
+                  />
+                  <button
+                    type="button"
+                    class="password-toggle"
+                    onclick="togglePassword('password', 'toggleIcon1')"
+                  >
+                    <i class="fas fa-eye" id="toggleIcon1"></i>
+                  </button>
+                </div>
+                <div class="password-strength">
+                  <div
+                    class="password-strength-bar"
+                    id="password-strength-bar"
+                  ></div>
+                </div>
+                <p class="password-hint">
+                  <i class="fas fa-info-circle"></i> Use at least 6 characters
+                  with letters and numbers
+                </p>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-lock"></i>Confirm Password<span
+                    class="required"
+                    >*</span
+                  >
+                </label>
+                <div class="password-container">
+                  <input
+                    type="password"
+                    name="confirm_password"
+                    id="confirm_password"
+                    class="form-input"
+                    placeholder="Re-enter your password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    class="password-toggle"
+                    onclick="togglePassword('confirm_password', 'toggleIcon2')"
+                  >
+                    <i class="fas fa-eye" id="toggleIcon2"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="form-checkbox">
+                <input type="checkbox" id="terms" required />
+                <label for="terms">
+                  I agree to the
+                  <a href="{{ url_for('terms') }}" target="_blank"
+                    >Terms & Conditions</a
+                  >
+                  and
+                  <a href="{{ url_for('privacy') }}" target="_blank"
+                    >Privacy Policy</a
+                  >
+                </label>
+              </div>
+
+              <button type="submit" class="btn-primary" id="submit-btn">
+                <span id="submit-text"
+                  ><i class="fas fa-user-plus"></i> Create Account</span
+                >
+                <span class="spinner" id="submit-spinner"></span>
+              </button>
+            </form>
+
+            <div class="divider"><span>Already have an account?</span></div>
+
+            <div class="back-link">
+              <a href="{{ url_for('login') }}">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+              </a>
+            </div>
+          </div>
+
+          <p class="footer-text">
+            &copy; 2024 Shramic ERP. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Camera Modal -->
+    <div class="camera-modal" id="camera-modal">
+      <div class="camera-container">
+        <h3><i class="fas fa-camera"></i> Capture Your Photo</h3>
+        <video id="camera-video" autoplay playsinline></video>
+        <canvas id="camera-canvas" style="display: none"></canvas>
+        <div class="camera-controls">
+          <button type="button" class="btn-photo" onclick="capturePhoto()">
+            <i class="fas fa-camera"></i> Capture
+          </button>
+          <button
+            type="button"
+            class="btn-photo btn-photo-danger"
+            onclick="closeCamera()"
+          >
+            <i class="fas fa-times"></i> Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Crop Modal -->
+    <div class="crop-modal" id="crop-modal">
+      <div class="crop-container">
+        <h3><i class="fas fa-crop"></i> Crop Your Photo</h3>
+        <div class="crop-image-container">
+          <img id="crop-image" />
+        </div>
+        <div class="crop-controls">
+          <button type="button" class="btn-photo" onclick="applyCrop()">
+            <i class="fas fa-check"></i> Apply Crop
+          </button>
+          <button
+            type="button"
+            class="btn-photo btn-photo-danger"
+            onclick="closeCropModal()"
+          >
+            <i class="fas fa-times"></i> Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cropper.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
+    <script>
+      let cameraStream = null;
+      let cropper = null;
+      const defaultImagePath =
+        "{{ url_for('static', filename='images/default-avatar.png') }}";
+
+      // Password Toggle
+      function togglePassword(inputId, iconId) {
+        const passwordInput = document.getElementById(inputId);
+        const toggleIcon = document.getElementById(iconId);
+        if (passwordInput.type === "password") {
+          passwordInput.type = "text";
+          toggleIcon.classList.remove("fa-eye");
+          toggleIcon.classList.add("fa-eye-slash");
+        } else {
+          passwordInput.type = "password";
+          toggleIcon.classList.remove("fa-eye-slash");
+          toggleIcon.classList.add("fa-eye");
+        }
+      }
+
+      // Password Strength Checker
+      function checkPasswordStrength() {
+        const password = document.getElementById("password").value;
+        const strengthBar = document.getElementById("password-strength-bar");
+
+        // Reset
+        strengthBar.className = "password-strength-bar";
+
+        if (password.length === 0) {
+          return;
+        }
+
+        let strength = 0;
+
+        // Check length
+        if (password.length >= 6) strength++;
+        if (password.length >= 10) strength++;
+
+        // Check for numbers
+        if (/\d/.test(password)) strength++;
+
+        // Check for letters
+        if (/[a-zA-Z]/.test(password)) strength++;
+
+        // Check for special characters
+        if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+        if (strength <= 2) {
+          strengthBar.classList.add("weak");
+        } else if (strength <= 4) {
+          strengthBar.classList.add("medium");
+        } else {
+          strengthBar.classList.add("strong");
+        }
+      }
+
+      // Role Selection Handler
+      document
+        .getElementById("role-select")
+        .addEventListener("change", function () {
+          updateCustomFields();
+        });
+
+      // Department Selection Handler
+      document
+        .getElementById("department-select")
+        .addEventListener("change", function () {
+          updateCustomFields();
+        });
+
+      // Update custom fields visibility based on selections
+      function updateCustomFields() {
+        const roleSelect = document.getElementById("role-select");
+        const departmentSelect = document.getElementById("department-select");
+        const customFieldsRow = document.getElementById("custom-fields-row");
+        const customRoleGroup = document.getElementById("custom-role-group");
+        const customDepartmentGroup = document.getElementById(
+          "custom-department-group",
+        );
+        const customRoleInput = document.getElementById("custom-role-input");
+        const customDepartmentInput = document.getElementById(
+          "custom-department-input",
+        );
+
+        const roleIsOther = roleSelect.value === "Other";
+        const departmentIsOther = departmentSelect.value === "Other";
+
+        // Show row if either is "Other"
+        if (roleIsOther || departmentIsOther) {
+          customFieldsRow.style.display = "grid";
+
+          // Show/hide individual fields
+          if (roleIsOther) {
+            customRoleGroup.style.display = "block";
+            customRoleInput.required = true;
+          } else {
+            customRoleGroup.style.display = "none";
+            customRoleInput.required = false;
+            customRoleInput.value = "";
+          }
+
+          if (departmentIsOther) {
+            customDepartmentGroup.style.display = "block";
+            customDepartmentInput.required = false; // Department is optional
+          } else {
+            customDepartmentGroup.style.display = "none";
+            customDepartmentInput.value = "";
+          }
+        } else {
+          customFieldsRow.style.display = "none";
+          customRoleInput.required = false;
+          customRoleInput.value = "";
+          customDepartmentInput.value = "";
+        }
+      }
+
+      // Camera Functions
+      async function openCamera() {
+        try {
+          // Check if mediaDevices is supported
+          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            alert(
+              "Camera not supported on this browser. Please use file upload instead.",
+            );
+            return;
+          }
+
+          const modal = document.getElementById("camera-modal");
+          const video = document.getElementById("camera-video");
+
+          // Try to get camera access with multiple fallback options
+          try {
+            // Try with facingMode: user first
+            cameraStream = await navigator.mediaDevices.getUserMedia({
+              video: {
+                facingMode: "user",
+                width: { ideal: 640 },
+                height: { ideal: 480 },
+              },
+            });
+          } catch (err) {
+            // Fallback: try without facingMode
+            try {
+              cameraStream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                  width: { ideal: 640 },
+                  height: { ideal: 480 },
+                },
+              });
+            } catch (err2) {
+              // Fallback: try with minimal constraints
+              cameraStream = await navigator.mediaDevices.getUserMedia({
+                video: true,
+              });
+            }
+          }
+
+          video.srcObject = cameraStream;
+          modal.classList.add("active");
+        } catch (error) {
+          console.error("Camera error:", error);
+
+          let errorMessage = "Unable to access camera. ";
+
+          if (
+            error.name === "NotAllowedError" ||
+            error.name === "PermissionDeniedError"
+          ) {
+            errorMessage +=
+              "Camera permission denied. Please allow camera access in your browser settings and try again, or use file upload.";
+          } else if (
+            error.name === "NotFoundError" ||
+            error.name === "DevicesNotFoundError"
+          ) {
+            errorMessage +=
+              "No camera found on this device. Please use file upload instead.";
+          } else if (
+            error.name === "NotReadableError" ||
+            error.name === "TrackStartError"
+          ) {
+            errorMessage +=
+              "Camera is already in use by another application. Please close other apps and try again, or use file upload.";
+          } else if (error.name === "OverconstrainedError") {
+            errorMessage +=
+              "Camera doesn't support the requested settings. Please use file upload.";
+          } else if (error.name === "SecurityError") {
+            errorMessage +=
+              "Camera access blocked due to security settings. Please use HTTPS or use file upload.";
+          } else {
+            errorMessage +=
+              "Please check browser permissions or use file upload. Error: " +
+              error.message;
+          }
+
+          alert(errorMessage);
+        }
+      }
+
+      function closeCamera() {
+        const modal = document.getElementById("camera-modal");
+        const video = document.getElementById("camera-video");
+
+        if (cameraStream) {
+          cameraStream.getTracks().forEach((track) => track.stop());
+          cameraStream = null;
+        }
+
+        video.srcObject = null;
+        modal.classList.remove("active");
+      }
+
+      function capturePhoto() {
+        const video = document.getElementById("camera-video");
+        const canvas = document.getElementById("camera-canvas");
+        const context = canvas.getContext("2d");
+
+        // Set canvas size to video size
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        // Draw video frame to canvas
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Convert to base64
+        const photoData = canvas.toDataURL("image/png");
+
+        // Close camera
+        closeCamera();
+
+        // Open crop modal
+        openCropModal(photoData);
+      }
+
+      // Crop Modal Functions
+      function openCropModal(imageData) {
+        const modal = document.getElementById("crop-modal");
+        const image = document.getElementById("crop-image");
+
+        image.src = imageData;
+        modal.classList.add("active");
+
+        // Destroy previous cropper instance if exists
+        if (cropper) {
+          cropper.destroy();
+        }
+
+        // Initialize Cropper.js with square aspect ratio
+        cropper = new Cropper(image, {
+          aspectRatio: 1, // Square crop
+          viewMode: 1,
+          dragMode: "move",
+          autoCropArea: 1,
+          restore: false,
+          guides: true,
+          center: true,
+          highlight: false,
+          cropBoxMovable: true,
+          cropBoxResizable: true,
+          toggleDragModeOnDblclick: false,
+          minContainerWidth: 300,
+          minContainerHeight: 300,
+        });
+      }
+
+      function closeCropModal() {
+        const modal = document.getElementById("crop-modal");
+        modal.classList.remove("active");
+
+        if (cropper) {
+          cropper.destroy();
+          cropper = null;
+        }
+      }
+
+      function applyCrop() {
+        if (!cropper) return;
+
+        // Get cropped canvas
+        const canvas = cropper.getCroppedCanvas({
+          width: 400,
+          height: 400,
+          imageSmoothingEnabled: true,
+          imageSmoothingQuality: "high",
+        });
+
+        // Convert to base64
+        const croppedImage = canvas.toDataURL("image/png");
+
+        // Update display and hidden input
+        document.getElementById("photo-display").src = croppedImage;
+        document.getElementById("photo_data").value = croppedImage;
+        document.getElementById("reset-photo-btn").style.display =
+          "inline-flex";
+
+        // Close crop modal
+        closeCropModal();
+      }
+
+      // File Upload
+      function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Check file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          alert("File size too large. Please select an image under 5MB.");
+          return;
+        }
+
+        // Check file type
+        if (!file.type.startsWith("image/")) {
+          alert("Please select an image file.");
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const photoData = e.target.result;
+          // Open crop modal instead of directly setting the image
+          openCropModal(photoData);
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // Reset Photo
+      function resetPhoto() {
+        document.getElementById("photo-display").src = defaultImagePath;
+        document.getElementById("photo_data").value = "";
+        document.getElementById("photo-file").value = "";
+        document.getElementById("reset-photo-btn").style.display = "none";
+      }
+
+      // Form Validation
+      document
+        .getElementById("registration-form")
+        .addEventListener("submit", function (e) {
+          const password = document.getElementById("password").value;
+          const confirmPassword =
+            document.getElementById("confirm_password").value;
+
+          if (password !== confirmPassword) {
+            e.preventDefault();
+            alert("Passwords do not match!");
+            return false;
+          }
+
+          // Handle custom role
+          const roleSelect = document.getElementById("role-select");
+          const customRoleInput = document.getElementById("custom-role-input");
+          if (roleSelect.value === "Other" && customRoleInput.value.trim()) {
+            // Create a hidden input with the custom role value
+            const hiddenRole = document.createElement("input");
+            hiddenRole.type = "hidden";
+            hiddenRole.name = "role";
+            hiddenRole.value = customRoleInput.value.trim();
+            this.appendChild(hiddenRole);
+          }
+
+          // Handle custom department
+          const departmentSelect = document.getElementById("department-select");
+          const customDepartmentInput = document.getElementById(
+            "custom-department-input",
+          );
+          if (
+            departmentSelect.value === "Other" &&
+            customDepartmentInput.value.trim()
+          ) {
+            // Create a hidden input with the custom department value
+            const hiddenDepartment = document.createElement("input");
+            hiddenDepartment.type = "hidden";
+            hiddenDepartment.name = "department";
+            hiddenDepartment.value = customDepartmentInput.value.trim();
+            this.appendChild(hiddenDepartment);
+          }
+
+          // Show loading state
+          const submitBtn = document.getElementById("submit-btn");
+          const submitText = document.getElementById("submit-text");
+          const submitSpinner = document.getElementById("submit-spinner");
+
+          submitBtn.disabled = true;
+          submitText.style.display = "none";
+          submitSpinner.style.display = "inline-block";
+        });
+
+      // Auto-uppercase USN
+      document
+        .querySelector('input[name="usn"]')
+        .addEventListener("input", function (e) {
+          e.target.value = e.target.value.toUpperCase();
+        });
+
+      // Phone number validation
+      document
+        .querySelector('input[name="phone"]')
+        .addEventListener("input", function (e) {
+          e.target.value = e.target.value
+            .replace(/[^0-9]/g, "")
+            .substring(0, 10);
+        });
+    </script>
+  </body>
+</html>

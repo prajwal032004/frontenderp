@@ -1,0 +1,694 @@
+{% extends "intern/base.html" %} {% block title %}Certificate - {{
+cert.full_name }}{% endblock %} {% block extra_head %}
+<!-- High-Quality Screenshot Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  /* --- PAGE UI --- */
+  .cert-page-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem 3rem;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+  }
+
+  .action-bar {
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    z-index: 100;
+  }
+
+  .btn-action {
+    padding: 0.875rem 1.75rem;
+    border-radius: 12px;
+    border: none;
+    font-weight: 700;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .btn-jpg {
+    background: linear-gradient(135deg, #10b981, #059669);
+  }
+  .btn-jpg:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.4);
+  }
+
+  .btn-pdf {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+  }
+  .btn-pdf:hover {
+    background: linear-gradient(135deg, #4f46e5, #4338ca);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
+  }
+
+  .btn-back {
+    background: white;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+  }
+  .btn-back:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    transform: translateY(-2px);
+  }
+
+  .btn-verify {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+  }
+  .btn-verify:hover {
+    background: linear-gradient(135deg, #d97706, #b45309);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.4);
+  }
+
+  /* --- THE CERTIFICATE DESIGN --- */
+  #certificate-capture-area {
+    width: 100%;
+    max-width: 1000px;
+    background: #fff;
+    padding: 3rem;
+    position: relative;
+    color: #1e293b;
+    overflow: hidden;
+    background-image: url("https://www.transparenttextures.com/patterns/white-paper.png");
+    box-shadow:
+      0 20px 25px -5px rgba(0, 0, 0, 0.1),
+      0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+  }
+
+  /* Company Logo - Top Right */
+  .cert-company-logo {
+    position: absolute;
+    top: 2.5rem;
+    right: 2.5rem;
+    width: 120px;
+    height: auto;
+    opacity: 0.9;
+    z-index: 10;
+  }
+
+  /* Elegant Border */
+  .cert-outer-border {
+    border: 12px solid #0f172a;
+    padding: 6px;
+    border-radius: 4px;
+  }
+
+  .cert-inner-border {
+    border: 3px solid #6366f1;
+    padding: 4rem 3rem;
+    text-align: center;
+    position: relative;
+    background: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(226, 232, 240, 0.1) 100%
+    );
+  }
+
+  /* Logo Box Styling */
+  .cert-logo-box {
+    width: 85px;
+    height: 85px;
+    background: linear-gradient(135deg, #6366f1, #818cf8);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 0 auto 1.25rem;
+    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+    transform: rotate(-3deg);
+    overflow: hidden;
+  }
+
+  .cert-logo-box img {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    transform: rotate(3deg); /* Counter-rotate to keep logo straight */
+  }
+
+  .company-name {
+    text-transform: uppercase;
+    letter-spacing: 8px;
+    font-weight: 800;
+    font-size: 1.4rem;
+    margin-bottom: 3rem;
+    color: #0f172a;
+    font-family: "Space Grotesk", sans-serif;
+  }
+
+  .cert-title {
+    font-family: "Times New Roman", serif;
+    font-size: 4.75rem;
+    color: #0f172a;
+    margin: 0;
+    font-weight: 400;
+    letter-spacing: 2px;
+  }
+
+  .cert-subtitle {
+    font-size: 1.6rem;
+    color: #64748b;
+    margin-bottom: 2.5rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .intern-name {
+    font-size: 4rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #6366f1, #818cf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    border-bottom: 3px solid #e0e7ff;
+    display: inline-block;
+    padding: 0 3.5rem 0.5rem;
+    margin: 1rem 0;
+    font-family: "Space Grotesk", sans-serif;
+  }
+
+  .intern-usn {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #94a3b8;
+    margin-bottom: 3rem;
+    letter-spacing: 1px;
+  }
+
+  .cert-description {
+    font-size: 1.35rem;
+    line-height: 1.9;
+    max-width: 850px;
+    margin: 0 auto 3.5rem;
+    color: #334155;
+    font-weight: 400;
+  }
+
+  .cert-description strong {
+    color: #6366f1;
+    font-weight: 700;
+  }
+
+  /* Footer Signatures */
+  .cert-footer {
+    margin-top: 4rem;
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    padding-top: 2rem;
+    border-top: 2px solid #e2e8f0;
+  }
+
+  .sig-block {
+    width: 240px;
+    text-align: center;
+  }
+  .sig-hand {
+    font-family: "Brush Script MT", cursive;
+    font-size: 2.25rem;
+    background: linear-gradient(135deg, #6366f1, #818cf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+  }
+  .sig-line {
+    border-top: 2px solid #1e293b;
+    margin: 0 auto 0.75rem;
+    width: 80%;
+  }
+  .sig-label {
+    font-weight: 800;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    color: #475569;
+    letter-spacing: 1px;
+  }
+
+  /* Meta / QR - FIXED POSITIONING */
+  .qr-container {
+    position: absolute;
+    bottom: 3.5rem;
+    right: 4.5rem; /* Moved slightly right */
+    text-align: center;
+    background: white;
+    padding: 0.75rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 2px solid #6366f1;
+    z-index: 10; /* Ensure QR is above other elements */
+  }
+
+  .qr-container img {
+    display: block;
+    border-radius: 8px;
+    width: 100px !important;
+    height: 100px !important;
+  }
+
+  .cert-meta-info {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  /* Watermark Pattern */
+  .cert-watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    font-size: 8rem;
+    font-weight: 900;
+    color: rgba(99, 102, 241, 0.03);
+    z-index: 1;
+    pointer-events: none;
+    user-select: none;
+    font-family: "Space Grotesk", sans-serif;
+  }
+
+  /* --- PRINT OPTIMIZATION --- */
+  @media print {
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      background: white !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .sidebar,
+    .top-header,
+    .action-bar,
+    footer,
+    .btn-action {
+      display: none !important;
+    }
+
+    .content-body {
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    .cert-page-wrapper {
+      background: white !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      min-height: auto !important;
+    }
+
+    #certificate-capture-area {
+      width: 100% !important;
+      max-width: 100% !important;
+      margin: 0 auto !important;
+      padding: 1cm !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      page-break-inside: avoid !important;
+      page-break-after: avoid !important;
+      page-break-before: avoid !important;
+      background: white !important;
+      transform: none !important;
+    }
+
+    .cert-outer-border {
+      page-break-inside: avoid !important;
+    }
+
+    .cert-inner-border {
+      page-break-inside: avoid !important;
+    }
+
+    /* Ensure QR code is visible in PDF */
+    .qr-container {
+      position: absolute !important;
+      bottom: 3.5rem !important;
+      right: 4.5rem !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      z-index: 1000 !important;
+    }
+
+    .qr-container img {
+      opacity: 1 !important;
+      visibility: visible !important;
+      display: block !important;
+    }
+
+    /* Ensure text is visible */
+    .cert-watermark,
+    .intern-name,
+    .sig-hand,
+    .cert-title,
+    .company-name {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
+
+    /* Ensure logos are visible */
+    .cert-company-logo,
+    .cert-logo-box img {
+      opacity: 1 !important;
+      visibility: visible !important;
+    }
+
+    /* Page size */
+    @page {
+      size: A4;
+      margin: 0;
+    }
+  }
+
+  /* --- MOBILE RESPONSIVENESS --- */
+  @media (max-width: 768px) {
+    #certificate-capture-area {
+      padding: 1.5rem;
+    }
+
+    .cert-company-logo {
+      width: 80px;
+      top: 1.5rem;
+      right: 1.5rem;
+    }
+
+    .cert-inner-border {
+      padding: 2rem 1.5rem;
+    }
+
+    .cert-title {
+      font-size: 3rem;
+    }
+
+    .intern-name {
+      font-size: 2.5rem;
+      padding: 0 1.5rem 0.5rem;
+    }
+
+    .cert-description {
+      font-size: 1.1rem;
+    }
+
+    .company-name {
+      font-size: 1rem;
+      letter-spacing: 4px;
+    }
+
+    .qr-container {
+      bottom: 2rem;
+      right: 2rem;
+    }
+
+    .cert-footer {
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .sig-block {
+      width: 100%;
+    }
+
+    .cert-watermark {
+      font-size: 4rem;
+    }
+  }
+
+  /* Loading State */
+  .btn-action:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="cert-page-wrapper">
+  <!-- Action Bar -->
+  <div class="action-bar">
+    <button class="btn-action btn-jpg" onclick="exportJPG()" id="btnJPG">
+      <i class="fas fa-image"></i> Download JPG
+    </button>
+    <button class="btn-action btn-pdf" onclick="window.print()">
+      <i class="fas fa-file-pdf"></i> Download PDF
+    </button>
+    <a href="/verify/certificate/" class="btn-action btn-verify">
+      <i class="fas fa-qrcode"></i> Scan to Verify
+    </a>
+    <a href="{{ url_for('intern_certificates') }}" class="btn-action btn-back">
+      <i class="fas fa-arrow-left"></i> Back
+    </a>
+  </div>
+
+  <!-- CERTIFICATE BODY -->
+  <div id="certificate-capture-area">
+    <!-- Company Logo (Top Right) -->
+    <img
+      src="{{ url_for('static', filename='images/sdc.png') }}"
+      class="cert-company-logo"
+      alt="Shramic Logo"
+      crossorigin="anonymous"
+      loading="eager"
+      onerror="this.style.display = 'none'"
+    />
+
+    <div class="cert-outer-border">
+      <div class="cert-inner-border">
+        <!-- Watermark -->
+        <div class="cert-watermark">SHRAMIC</div>
+
+        <!-- Logo Box with Shramic Logo -->
+        <div class="cert-logo-box">
+          <img
+            src="{{ url_for('static', filename='images/sdc.png') }}"
+            alt="Shramic Logo"
+            crossorigin="anonymous"
+            loading="eager"
+            onerror="this.outerHTML = '<i class=\'fas fa-certificate\'></i>'"
+          />
+        </div>
+
+        <!-- Company Name -->
+        <div class="company-name">Shramic ERP Systems</div>
+
+        <!-- Certificate Title -->
+        <h1 class="cert-title">Certificate</h1>
+        <p class="cert-subtitle">Of Internship Completion</p>
+
+        <p style="font-size: 1.4rem; color: #64748b; margin: 1.5rem 0">
+          This is to certify that
+        </p>
+
+        <!-- Intern Details -->
+        <div class="intern-name">{{ cert.full_name }}</div>
+        <div class="intern-usn">USN: {{ cert.usn }}</div>
+
+        <!-- Description -->
+        <p class="cert-description">
+          has successfully completed an intensive internship program in the
+          <strong>{{ cert.department }}</strong> department as a
+          <strong>{{ cert.role }}</strong>. During the program from
+          <strong>{{ cert.join_date }}</strong> to
+          <strong>{{ cert.issue_date }}</strong>, the candidate has demonstrated
+          exceptional dedication, technical skill, and professional growth.
+        </p>
+
+        <!-- Signatures -->
+        <div class="cert-footer">
+          <div class="sig-block">
+            <div class="sig-hand">Shramic Admin</div>
+            <div class="sig-line"></div>
+            <div class="sig-label">System Administrator</div>
+          </div>
+          <div class="sig-block">
+            <div class="sig-hand">HR Director</div>
+            <div class="sig-line"></div>
+            <div class="sig-label">Human Resources</div>
+          </div>
+        </div>
+
+        <!-- QR Code -->
+        <div class="qr-container">
+          <img
+            src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ url_for('verify_certificate', code=cert.verification_code, _external=True) }}"
+            alt="Verification QR Code"
+            width="100"
+            height="100"
+            crossorigin="anonymous"
+            loading="eager"
+          />
+          <p
+            style="
+              font-size: 0.65rem;
+              font-weight: 800;
+              margin-top: 0.5rem;
+              color: #475569;
+            "
+          >
+            SCAN TO VERIFY
+          </p>
+        </div>
+
+        <!-- Certificate Metadata -->
+        <div class="cert-meta-info">
+          Certificate ID: <strong>{{ cert.certificate_number }}</strong> |
+          Issued on: <strong>{{ cert.issue_date }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  /**
+   * Export certificate as high-quality JPG with proper QR code capture
+   */
+  function exportJPG() {
+    const area = document.getElementById("certificate-capture-area");
+    const btn = document.getElementById("btnJPG");
+
+    // Disable button
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+
+    // Ensure all images are loaded before capturing
+    const images = area.getElementsByTagName("img");
+    const imagePromises = Array.from(images).map((img) => {
+      if (img.complete) {
+        return Promise.resolve();
+      }
+      return new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = resolve; // Continue even if image fails
+        // Force reload if stuck
+        setTimeout(() => {
+          if (!img.complete) {
+            img.src = img.src;
+          }
+        }, 100);
+      });
+    });
+
+    // Wait for all images to load
+    Promise.all(imagePromises)
+      .then(() => {
+        // Wait a bit more to ensure rendering
+        setTimeout(() => {
+          html2canvas(area, {
+            scale: 3, // Ultra High DPI for print quality
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: "#ffffff",
+            logging: false,
+            imageTimeout: 15000,
+            removeContainer: true,
+            foreignObjectRendering: false,
+            // Ensure QR code and images are captured
+            onclone: function (clonedDoc) {
+              const clonedArea = clonedDoc.getElementById(
+                "certificate-capture-area",
+              );
+              if (clonedArea) {
+                clonedArea.style.transform = "none";
+                clonedArea.style.boxShadow = "none";
+              }
+              // Ensure QR code is visible in clone
+              const qrContainer = clonedDoc.querySelector(".qr-container");
+              if (qrContainer) {
+                qrContainer.style.opacity = "1";
+                qrContainer.style.visibility = "visible";
+                qrContainer.style.zIndex = "1000";
+              }
+              const qrImg = clonedDoc.querySelector(".qr-container img");
+              if (qrImg) {
+                qrImg.style.opacity = "1";
+                qrImg.style.visibility = "visible";
+                qrImg.style.display = "block";
+              }
+              // Ensure logos are visible
+              const logos = clonedDoc.querySelectorAll(
+                ".cert-company-logo, .cert-logo-box img",
+              );
+              logos.forEach((logo) => {
+                logo.style.opacity = "1";
+                logo.style.visibility = "visible";
+              });
+            },
+          })
+            .then((canvas) => {
+              const link = document.createElement("a");
+              link.download =
+                'Certificate_{{ cert.full_name|replace(" ", "_") }}_{{ cert.certificate_number }}.jpg';
+              link.href = canvas.toDataURL("image/jpeg", 0.98); // Higher quality
+              link.click();
+
+              // Re-enable button
+              btn.disabled = false;
+              btn.innerHTML = '<i class="fas fa-image"></i> Download JPG';
+            })
+            .catch((error) => {
+              console.error("Export error:", error);
+              alert("Failed to generate JPG. Please try again.");
+              btn.disabled = false;
+              btn.innerHTML = '<i class="fas fa-image"></i> Download JPG';
+            });
+        }, 500); // Wait 500ms for rendering
+      })
+      .catch((error) => {
+        console.error("Image loading error:", error);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-image"></i> Download JPG';
+        alert("Failed to load images. Please try again.");
+      });
+  }
+
+  // Prevent accidental navigation - hide action bar when printing
+  window.onbeforeprint = function () {
+    const actionBar = document.querySelector(".action-bar");
+    if (actionBar) actionBar.style.display = "none";
+  };
+
+  window.onafterprint = function () {
+    const actionBar = document.querySelector(".action-bar");
+    if (actionBar) actionBar.style.display = "flex";
+  };
+</script>
+{% endblock %}

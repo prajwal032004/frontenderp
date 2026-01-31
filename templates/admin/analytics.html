@@ -1,0 +1,335 @@
+{% extends "admin/base.html" %} {% block page_title %}Analytics & Reports{%
+endblock %} {% block content %}
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+  /* Analytics Specific Styling */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .kpi-box {
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    transition: 0.3s;
+  }
+  .kpi-box:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+  }
+  .kpi-title {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+  }
+  .kpi-number {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-main);
+    line-height: 1;
+  }
+
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .chart-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    height: 400px;
+    position: relative;
+  }
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Leaderboard Styling */
+  .leaderboard-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .leader-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .leader-item:last-child {
+    border-bottom: none;
+  }
+
+  .rank-badge {
+    width: 24px;
+    height: 24px;
+    background: var(--bg-body);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-right: 10px;
+  }
+  .rank-1 {
+    background: #fef3c7;
+    color: #d97706;
+  } /* Gold */
+  .rank-2 {
+    background: #f1f5f9;
+    color: #64748b;
+  } /* Silver */
+  .rank-3 {
+    background: #ffedd5;
+    color: #c2410c;
+  } /* Bronze */
+
+  @media (max-width: 1024px) {
+    .charts-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<!-- 1. KPI Summary Row -->
+<div class="kpi-row">
+  <div class="kpi-box">
+    <div class="kpi-title">Avg. Attendance</div>
+    <div class="kpi-number">
+      {% if attendance_trend %} {# Calculate simple avg from trend data #} {%
+      set total_p = namespace(value=0) %} {% for day in attendance_trend %}{%
+      set total_p.value = total_p.value + day.count %}{% endfor %} {{
+      (total_p.value / attendance_trend|length)|round(1) if
+      attendance_trend|length > 0 else 0 }} {% else %}0{% endif %}
+    </div>
+    <div style="font-size: 0.8rem; color: var(--success); margin-top: 5px">
+      Daily Users
+    </div>
+  </div>
+
+  <div class="kpi-box">
+    <div class="kpi-title">Completion Rate</div>
+    <div class="kpi-number">
+      {% if task_stats.total > 0 %} {{ ((task_stats.completed /
+      task_stats.total) * 100)|int }}% {% else %}0%{% endif %}
+    </div>
+    <div style="font-size: 0.8rem; color: var(--text-light); margin-top: 5px">
+      {{ task_stats.completed }} / {{ task_stats.total }} Tasks
+    </div>
+  </div>
+
+  <div class="kpi-box">
+    <div class="kpi-title">Active Interns</div>
+    <div class="kpi-number">
+      {# Calculate total from role distribution #} {% set total_active =
+      namespace(value=0) %} {% for role in role_distribution %}{% set
+      total_active.value = total_active.value + role.count %}{% endfor %} {{
+      total_active.value }}
+    </div>
+    <div style="font-size: 0.8rem; color: var(--primary); margin-top: 5px">
+      Across {{ department_stats|length }} Depts
+    </div>
+  </div>
+</div>
+
+<!-- 2. Main Charts Area -->
+<div class="charts-grid">
+  <!-- Line Chart: Attendance Trend -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <h3>Attendance Trend</h3>
+      <select
+        style="
+          padding: 5px;
+          border-radius: 6px;
+          border: 1px solid var(--border);
+        "
+      >
+        <option>Last 30 Days</option>
+      </select>
+    </div>
+    <div style="height: 300px; width: 100%">
+      <canvas id="attendanceChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Doughnut Chart: Role Distribution -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <h3>Role Distribution</h3>
+    </div>
+    <div
+      style="height: 250px; width: 100%; display: flex; justify-content: center"
+    >
+      <canvas id="roleChart"></canvas>
+    </div>
+    <div
+      style="
+        margin-top: 1rem;
+        text-align: center;
+        font-size: 0.9rem;
+        color: var(--text-light);
+      "
+    >
+      Total active roles in system
+    </div>
+  </div>
+</div>
+
+<!-- 3. Secondary Metrics Grid -->
+<div class="charts-grid">
+  <!-- Bar Chart: Department Stats -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <h3>Department Breakdown</h3>
+    </div>
+    <div style="height: 300px; width: 100%">
+      <canvas id="deptChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Top Performers List -->
+  <div class="chart-card" style="overflow-y: auto">
+    <div class="chart-header">
+      <h3>Top Performers</h3>
+      <span class="badge badge-neutral">By Grade</span>
+    </div>
+
+    <ul class="leaderboard-list">
+      {% for user in top_performers %}
+      <li class="leader-item">
+        <div style="display: flex; align-items: center">
+          <span class="rank-badge rank-{{ loop.index }}">{{ loop.index }}</span>
+          <div>
+            <div style="font-weight: 600; font-size: 0.95rem">
+              {{ user.full_name }}
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-light)">
+              {{ user.intern_id }}
+            </div>
+          </div>
+        </div>
+        <div style="text-align: right">
+          <div style="font-weight: 700; color: var(--primary)">
+            {{ user.avg_grade|round(1) }}
+          </div>
+          <div style="font-size: 0.7rem; color: var(--text-light)">
+            Avg Grade
+          </div>
+        </div>
+      </li>
+      {% else %}
+      <li style="text-align: center; padding: 2rem; color: var(--text-light)">
+        No data available.
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+<!-- CHART JS CONFIGURATION -->
+<script>
+  // 1. Attendance Chart
+  const ctxAtt = document.getElementById('attendanceChart').getContext('2d');
+  const attData = {
+      labels: [{% for d in attendance_trend %}"{{ d.date }}",{% endfor %}],
+      data: [{% for d in attendance_trend %}{{ d.count }},{% endfor %}]
+  };
+
+  new Chart(ctxAtt, {
+      type: 'line',
+      data: {
+          labels: attData.labels,
+          datasets: [{
+              label: 'Present Interns',
+              data: attData.data,
+              borderColor: '#4F46E5',
+              backgroundColor: 'rgba(79, 70, 229, 0.1)',
+              fill: true,
+              tension: 0.4,
+              pointRadius: 3
+          }]
+      },
+      options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+              y: { beginAtZero: true, grid: { color: '#F1F5F9' } },
+              x: { grid: { display: false } }
+          }
+      }
+  });
+
+  // 2. Role Distribution Chart
+  const ctxRole = document.getElementById('roleChart').getContext('2d');
+  const roleData = {
+      labels: [{% for r in role_distribution %}"{{ r.role }}",{% endfor %}],
+      data: [{% for r in role_distribution %}{{ r.count }},{% endfor %}]
+  };
+
+  new Chart(ctxRole, {
+      type: 'doughnut',
+      data: {
+          labels: roleData.labels,
+          datasets: [{
+              data: roleData.data,
+              backgroundColor: ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'],
+              borderWidth: 0
+          }]
+      },
+      options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+              legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } }
+          }
+      }
+  });
+
+  // 3. Department Chart
+  const ctxDept = document.getElementById('deptChart').getContext('2d');
+  const deptData = {
+      labels: [{% for d in department_stats %}"{{ d.department or 'Unknown' }}",{% endfor %}],
+      data: [{% for d in department_stats %}{{ d.count }},{% endfor %}]
+  };
+
+  new Chart(ctxDept, {
+      type: 'bar',
+      data: {
+          labels: deptData.labels,
+          datasets: [{
+              label: 'Interns per Dept',
+              data: deptData.data,
+              backgroundColor: '#10B981',
+              borderRadius: 4
+          }]
+      },
+      options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+              y: { beginAtZero: true, grid: { color: '#F1F5F9' } },
+              x: { grid: { display: false } }
+          }
+      }
+  });
+</script>
+{% endblock %}

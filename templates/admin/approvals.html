@@ -1,0 +1,260 @@
+{% extends "admin/base.html" %} {% block page_title %}Pending Approvals{%
+endblock %} {% block content %}
+<style>
+  /* Approval Card Grid */
+  .approval-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .approval-card {
+    background: white;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .approval-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: rgba(99, 102, 241, 0.3);
+  }
+
+  /* Header Stripe */
+  .approval-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--warning);
+  }
+
+  /* Candidate Header */
+  .candidate-header {
+    display: flex;
+    align-items: start;
+    gap: 12px;
+  }
+  .candidate-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    background: #f8fafc;
+  }
+
+  .meta-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .meta-label {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .meta-val {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+  }
+
+  /* Action Buttons */
+  .action-row {
+    display: flex;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 1rem;
+  }
+  .btn-approve {
+    flex: 1;
+    background: var(--success);
+    color: white;
+    border: none;
+    justify-content: center;
+  }
+  .btn-approve:hover {
+    background: #059669;
+  }
+  .btn-reject {
+    width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fef2f2;
+    color: var(--danger);
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .btn-reject:hover {
+    background: #fee2e2;
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 6rem 2rem;
+    background: white;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+</style>
+
+{% if pending_interns %}
+<div
+  style="
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  "
+>
+  <h3 style="font-size: 1.1rem; color: var(--text-secondary)">
+    <i class="ri-hourglass-fill" style="color: var(--warning)"></i>
+    Waiting for Review
+    <span
+      style="
+        background: var(--warning);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        margin-left: 8px;
+      "
+      >{{ pending_interns|length }}</span
+    >
+  </h3>
+</div>
+
+<div class="approval-grid">
+  {% for user in pending_interns %}
+  <div class="approval-card">
+    <div class="candidate-header">
+      <img
+        src="{{ url_for('static', filename='uploads/profiles/' + user.photo_url) if user.photo_url else 'https://ui-avatars.com/api/?name=' + user.full_name }}"
+        class="candidate-avatar"
+        alt="Profile"
+      />
+      <div>
+        <h4 style="margin-bottom: 4px; font-size: 1.1rem">
+          {{ user.full_name }}
+        </h4>
+        <div
+          style="
+            font-family: &quot;Space Grotesk&quot;, monospace;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+          "
+        >
+          {{ user.usn }}
+        </div>
+        <div
+          style="font-size: 0.85rem; color: var(--text-light); margin-top: 4px"
+        >
+          Applied: {{ user.created_at.split(' ')[0] }}
+        </div>
+      </div>
+    </div>
+
+    <div class="meta-row">
+      <div class="meta-item">
+        <span class="meta-label">Role</span>
+        <span class="meta-val">{{ user.role }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Department</span>
+        <span class="meta-val">{{ user.department }}</span>
+      </div>
+      <div class="meta-item" style="grid-column: span 2; margin-top: 8px">
+        <span class="meta-label">Contact</span>
+        <span class="meta-val" style="font-family: monospace"
+          >{{ user.email }}</span
+        >
+      </div>
+    </div>
+
+    <div class="action-row">
+      <form
+        action="{{ url_for('approve_intern', user_id=user.id) }}"
+        method="POST"
+        style="flex: 1"
+      >
+        <button class="btn btn-approve">
+          <i class="ri-check-double-line"></i> Approve Application
+        </button>
+      </form>
+
+      <form
+        action="{{ url_for('reject_intern', user_id=user.id) }}"
+        method="POST"
+      >
+        <button
+          class="btn-reject"
+          title="Reject Application"
+          onclick="
+            return confirm(
+              'Are you sure you want to reject this application? This cannot be undone.',
+            );
+          "
+        >
+          <i class="ri-close-line" style="font-size: 1.2rem"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="empty-state">
+  <div
+    style="
+      width: 80px;
+      height: 80px;
+      background: #ecfdf5;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+    "
+  >
+    <i
+      class="ri-checkbox-circle-line"
+      style="font-size: 3rem; color: var(--success)"
+    ></i>
+  </div>
+  <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem">All Caught Up!</h3>
+  <p style="color: var(--text-secondary); max-width: 400px; margin: 0 auto">
+    There are no pending registration requests at this moment. New applications
+    will appear here automatically.
+  </p>
+  <a
+    href="{{ url_for('admin_dashboard') }}"
+    class="btn btn-outline"
+    style="margin-top: 2rem"
+    >Return to Dashboard</a
+  >
+</div>
+{% endif %} {% endblock %}

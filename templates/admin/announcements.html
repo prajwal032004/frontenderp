@@ -1,0 +1,166 @@
+{% extends "admin/base.html" %} {% block title %}Announcements{% endblock %} {%
+block page_title %}Notice Board{% endblock %} {% block content %}
+<div class="card" style="margin-bottom: 2rem">
+  <h3 style="margin-bottom: 1.5rem">Post New Announcement</h3>
+  <form
+    action="{{ url_for('admin_announcements') }}"
+    method="POST"
+    style="
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    "
+  >
+    <div>
+      <label style="display: block; font-size: 0.85rem; margin-bottom: 0.5rem"
+        >Title</label
+      >
+      <input
+        type="text"
+        name="title"
+        required
+        class="btn-outline"
+        style="width: 100%; padding: 0.6rem; border-radius: 6px"
+        placeholder="e.g., Weekly Sync Meeting"
+      />
+    </div>
+    <div>
+      <label style="display: block; font-size: 0.85rem; margin-bottom: 0.5rem"
+        >Category</label
+      >
+      <select
+        name="category"
+        class="btn-outline"
+        style="width: 100%; padding: 0.6rem; border-radius: 6px"
+      >
+        <option value="General">General</option>
+        <option value="Event">Event</option>
+        <option value="Urgent">Urgent</option>
+        <option value="Training">Training</option>
+      </select>
+    </div>
+    <div>
+      <label style="display: block; font-size: 0.85rem; margin-bottom: 0.5rem"
+        >Priority</label
+      >
+      <select
+        name="priority"
+        class="btn-outline"
+        style="width: 100%; padding: 0.6rem; border-radius: 6px"
+      >
+        <option value="NORMAL">Normal</option>
+        <option value="HIGH">High Priority</option>
+      </select>
+    </div>
+    <div style="grid-column: 1 / -1">
+      <label style="display: block; font-size: 0.85rem; margin-bottom: 0.5rem"
+        >Content</label
+      >
+      <textarea
+        name="content"
+        rows="3"
+        required
+        class="btn-outline"
+        style="
+          width: 100%;
+          padding: 0.6rem;
+          border-radius: 6px;
+          resize: vertical;
+        "
+        placeholder="Write details here..."
+      ></textarea>
+    </div>
+    <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end">
+      <button type="submit" class="btn btn-primary">
+        <i class="ri-megaphone-line"></i> Publish Announcement
+      </button>
+    </div>
+  </form>
+</div>
+
+<div class="card">
+  <h3 style="margin-bottom: 1.5rem">Active Notices</h3>
+  <div style="display: grid; gap: 1rem">
+    {% for note in announcements %}
+    <div
+      style="
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+      "
+    >
+      <div style="display: flex; gap: 15px">
+        <div
+          style="width: 40px; height: 40px; border-radius: 8px; background: {% if note.priority == 'HIGH' %}#fee2e2{% else %}#e0e7ff{% endif %}; color: {% if note.priority == 'HIGH' %}var(--danger){% else %}var(--primary){% endif %}; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;"
+        >
+          <i class="ri-notification-3-line"></i>
+        </div>
+        <div>
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              margin-bottom: 4px;
+            "
+          >
+            <h4 style="margin: 0">{{ note.title }}</h4>
+            <span
+              class="badge {% if note.priority == 'HIGH' %}badge-danger{% else %}badge-neutral{% endif %}"
+              >{{ note.priority }}</span
+            >
+          </div>
+          <p
+            style="
+              color: var(--text-main);
+              font-size: 0.95rem;
+              margin-bottom: 8px;
+            "
+          >
+            {{ note.content }}
+          </p>
+          <div
+            style="
+              font-size: 0.8rem;
+              color: var(--text-light);
+              display: flex;
+              gap: 15px;
+            "
+          >
+            <span
+              ><i class="ri-user-smile-line"></i> {{ note.created_by_name
+              }}</span
+            >
+            <span
+              ><i class="ri-calendar-event-line"></i> {{ note.created_at
+              }}</span
+            >
+            <span><i class="ri-price-tag-3-line"></i> {{ note.category }}</span>
+          </div>
+        </div>
+      </div>
+      <form
+        action="{{ url_for('delete_announcement', announcement_id=note.id) }}"
+        method="POST"
+      >
+        <button
+          type="submit"
+          class="btn-icon"
+          style="color: var(--danger)"
+          onclick="return confirm('Delete this announcement?');"
+        >
+          <i class="ri-delete-bin-line"></i>
+        </button>
+      </form>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 2rem; color: var(--text-light)">
+      No announcements posted yet.
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

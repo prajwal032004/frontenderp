@@ -1,0 +1,205 @@
+{% extends "intern/base.html" %} {% block page_title %}My Tasks{% endblock %} {%
+block extra_head %}
+<style>
+  .filter-bar {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .filter-btn {
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text-muted);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    transition: 0.3s;
+  }
+  .filter-btn.active,
+  .filter-btn:hover {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 0 15px var(--primary-glow);
+    border-color: var(--primary);
+  }
+
+  .task-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .task-card {
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+  }
+
+  .priority-badge {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .priority-HIGH {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--danger);
+    border: 1px solid var(--danger);
+  }
+  .priority-MEDIUM {
+    background: rgba(245, 158, 11, 0.2);
+    color: var(--warning);
+    border: 1px solid var(--warning);
+  }
+  .priority-LOW {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--success);
+    border: 1px solid var(--success);
+  }
+
+  .submit-btn {
+    margin-top: auto;
+    padding: 0.8rem;
+    text-align: center;
+    background: var(--glass-border);
+    color: var(--text-main);
+    border-radius: 8px;
+    text-decoration: none;
+    transition: 0.3s;
+    border: 1px solid transparent;
+  }
+  .submit-btn:hover {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 4px 15px var(--primary-glow);
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="filter-bar">
+  <a
+    href="{{ url_for('intern_tasks', status='all') }}"
+    class="filter-btn {{ 'active' if current_status == 'all' }}"
+    >All</a
+  >
+  <a
+    href="{{ url_for('intern_tasks', status='ACTIVE') }}"
+    class="filter-btn {{ 'active' if current_status == 'ACTIVE' }}"
+    >Active</a
+  >
+  <a
+    href="{{ url_for('intern_tasks', status='COMPLETED') }}"
+    class="filter-btn {{ 'active' if current_status == 'COMPLETED' }}"
+    >Completed</a
+  >
+</div>
+
+<div class="task-grid">
+  {% for task in tasks %}
+  <div class="glass-panel card-3d task-card">
+    <span class="priority-badge priority-{{ task.priority }}"
+      >{{ task.priority }}</span
+    >
+
+    <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; padding-right: 2rem">
+      {{ task.title }}
+    </h3>
+
+    <div
+      style="
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+        display: flex;
+        gap: 1rem;
+      "
+    >
+      <span><i class="far fa-clock"></i> {{ task.deadline }}</span>
+      <span><i class="fas fa-hourglass"></i> {{ task.estimated_hours }}h</span>
+    </div>
+
+    <p
+      style="
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+      "
+    >
+      {{ task.description[:120] }}...
+    </p>
+
+    <!-- Progress Bar (Visual) -->
+    <div
+      style="
+        width: 100%;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        margin-bottom: 1.5rem;
+      "
+    >
+      <div
+        style="width: {{ task.completion_percentage }}%; height: 100%; background: var(--primary); border-radius: 2px; box-shadow: 0 0 5px var(--primary);"
+      ></div>
+    </div>
+
+    {% if task.file_url %}
+    <a
+      href="{{ url_for('uploaded_file', filename='tasks/' + task.file_url) }}"
+      target="_blank"
+      style="
+        font-size: 0.85rem;
+        color: var(--primary);
+        text-decoration: none;
+        margin-bottom: 1rem;
+        display: inline-block;
+      "
+    >
+      <i class="fas fa-paperclip"></i> View Attachment
+    </a>
+    {% endif %} {% if task.submitted > 0 %}
+    <div
+      class="submit-btn"
+      style="
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+        cursor: default;
+        border-color: var(--success);
+      "
+    >
+      <i class="fas fa-check"></i> Submitted
+    </div>
+    {% else %}
+    <a
+      href="{{ url_for('intern_submit', task_id=task.id) }}"
+      class="submit-btn"
+    >
+      Submit Work
+    </a>
+    {% endif %}
+  </div>
+  {% else %}
+  <div
+    style="
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-muted);
+    "
+  >
+    <i
+      class="fas fa-inbox"
+      style="font-size: 3rem; opacity: 0.3; margin-bottom: 1rem"
+    ></i>
+    <p>No tasks found in this category.</p>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

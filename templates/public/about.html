@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About Us - Shramic ERP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --bg-body: #fdfcf8;
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --text-tertiary: #94a3b8;
+        --primary: #4f46e5;
+        --primary-dark: #4338ca;
+        --primary-light: #e0e7ff;
+        --accent: #f59e0b;
+        --success: #10b981;
+        --success-bg: #d1fae5;
+        --nav-height: 80px;
+      }
+
+      body {
+        font-family: "Manrope", sans-serif;
+        background: var(--bg-body);
+        color: var(--text-primary);
+        line-height: 1.7;
+      }
+
+      .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: var(--nav-height);
+        background: rgba(253, 252, 248, 0.95);
+        backdrop-filter: blur(16px);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        z-index: 100;
+      }
+
+      .nav-container {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 0 5%;
+        height: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+      }
+
+      .logo-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--primary);
+        color: white;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+      }
+
+      .logo-text {
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: var(--text-primary);
+      }
+
+      .back-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+      }
+
+      .back-link:hover {
+        color: var(--primary-dark);
+      }
+
+      .hero-section {
+        padding: calc(var(--nav-height) + 4rem) 5% 4rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .blob {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.6;
+      }
+
+      .blob-1 {
+        top: -10%;
+        right: -5%;
+        width: 500px;
+        height: 500px;
+        background: var(--primary-light);
+      }
+
+      h1 {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 3rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        z-index: 2;
+      }
+
+      .hero-text {
+        font-size: 1.25rem;
+        color: var(--text-secondary);
+        max-width: 700px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+      }
+
+      .content-section {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 4rem 5%;
+      }
+
+      .section-title {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        color: var(--primary);
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 3rem;
+        margin-bottom: 4rem;
+      }
+
+      .feature-box {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 24px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      }
+
+      .feature-box h3 {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+      }
+
+      .feature-box p {
+        color: var(--text-secondary);
+        line-height: 1.8;
+      }
+
+      .icon-box {
+        width: 60px;
+        height: 60px;
+        background: var(--primary-light);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: var(--primary);
+        margin-bottom: 1.5rem;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2rem;
+        background: var(--primary);
+        border-radius: 24px;
+        padding: 3rem 2rem;
+        margin: 4rem 0;
+        color: white;
+        text-align: center;
+      }
+
+      .stat-item h3 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        color: white;
+      }
+
+      .stat-item p {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.95rem;
+      }
+
+      .values-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        margin-top: 3rem;
+      }
+
+      .value-card {
+        text-align: center;
+        padding: 2rem;
+      }
+
+      .value-card .icon-box {
+        margin: 0 auto 1rem;
+      }
+
+      .value-card h4 {
+        font-family: "Space Grotesk", sans-serif;
+        margin-bottom: 0.75rem;
+        font-size: 1.25rem;
+      }
+
+      .value-card p {
+        color: var(--text-secondary);
+      }
+
+      .cta-section {
+        background: linear-gradient(135deg, var(--primary) 0%, #6366f1 100%);
+        color: white;
+        padding: 4rem 5%;
+        border-radius: 24px;
+        text-align: center;
+        margin: 4rem auto;
+        max-width: 1100px;
+      }
+
+      .cta-section h2 {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .cta-section p {
+        font-size: 1.15rem;
+        margin-bottom: 2rem;
+        opacity: 0.95;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        padding: 1rem 2.5rem;
+        border-radius: 100px;
+        font-weight: 600;
+        font-size: 1rem;
+        text-decoration: none;
+        transition: all 0.3s;
+      }
+
+      .btn-white {
+        background: white;
+        color: var(--primary);
+      }
+
+      .btn-white:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      @media (max-width: 968px) {
+        .grid-2 {
+          grid-template-columns: 1fr;
+        }
+        .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .values-grid {
+          grid-template-columns: 1fr;
+        }
+        h1 {
+          font-size: 2.25rem;
+        }
+        .cta-section h2 {
+          font-size: 2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <a href="/" class="logo">
+          <div class="logo-icon"><i class="ri-shining-2-fill"></i></div>
+          <span class="logo-text">Shramic</span>
+        </a>
+        <a href="/" class="back-link">← Back to Home</a>
+      </div>
+    </nav>
+
+    <section class="hero-section">
+      <div class="blob blob-1"></div>
+      <h1>Transforming Internship Management</h1>
+      <p class="hero-text">
+        Shramic ERP is a comprehensive internship management platform designed
+        to bridge the gap between academic learning and industry execution. We
+        empower institutions and interns with powerful tools for tracking,
+        collaboration, and growth.
+      </p>
+    </section>
+
+    <div class="content-section">
+      <h2 class="section-title">Our Mission</h2>
+      <div class="grid-2">
+        <div class="feature-box">
+          <div class="icon-box"><i class="ri-rocket-line"></i></div>
+          <h3>Empower Interns</h3>
+          <p>
+            We provide interns with the tools they need to track their progress,
+            manage tasks efficiently, and build a verifiable portfolio of
+            achievements that stands out to future employers.
+          </p>
+        </div>
+
+        <div class="feature-box">
+          <div class="icon-box"><i class="ri-organization-chart"></i></div>
+          <h3>Streamline Administration</h3>
+          <p>
+            We help administrators manage internship programs effortlessly with
+            automated attendance tracking, performance reviews, and
+            comprehensive analytics—all in one centralized platform.
+          </p>
+        </div>
+      </div>
+
+      <h2 class="section-title">Why Shramic ERP?</h2>
+
+      <div class="stats-grid">
+        <div class="stat-item">
+          <h3>99.9%</h3>
+          <p>Platform Uptime</p>
+        </div>
+        <div class="stat-item">
+          <h3>24/7</h3>
+          <p>Support Available</p>
+        </div>
+        <div class="stat-item">
+          <h3>18+</h3>
+          <p>Features</p>
+        </div>
+        <div class="stat-item">
+          <h3>100%</h3>
+          <p>Secure</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="feature-box">
+          <div class="icon-box"><i class="ri-map-pin-user-line"></i></div>
+          <h3>Geo-Verified Attendance</h3>
+          <p>
+            Say goodbye to attendance fraud. Our GPS and IP-based verification
+            ensures interns are physically present at designated locations
+            during check-ins. Complete transparency and accountability.
+          </p>
+        </div>
+
+        <div class="feature-box">
+          <div class="icon-box"><i class="ri-task-line"></i></div>
+          <h3>Intelligent Task Management</h3>
+          <p>
+            Assign tasks with deadlines, track progress in real-time, and
+            provide instant feedback. Support for large file uploads (up to
+            16MB) ensures seamless project submissions.
+          </p>
+        </div>
+
+        <div class="feature-box">
+          <div class="icon-box"><i class="ri-verified-badge-line"></i></div>
+          <h3>Blockchain-Inspired Certificates</h3>
+          <p>
+            Generate tamper-proof certificates with unique QR codes and
+            verification codes. Anyone can verify authenticity instantly through
+            our public verification system.
+          </p>
+        </div>
+
+        <div class="feature-box">
+          <div class="icon-box"><i class="ri-bar-chart-box-line"></i></div>
+          <h3>Advanced Analytics</h3>
+          <p>
+            Gain actionable insights with comprehensive dashboards, attendance
+            trends, performance metrics, and exportable reports. Make
+            data-driven decisions effortlessly.
+          </p>
+        </div>
+      </div>
+
+      <h2 class="section-title">Our Core Values</h2>
+      <div class="values-grid">
+        <div class="value-card">
+          <div class="icon-box"><i class="ri-shield-check-line"></i></div>
+          <h4>Integrity</h4>
+          <p>
+            We build trust through transparency, honesty, and ethical practices
+            in everything we do.
+          </p>
+        </div>
+
+        <div class="value-card">
+          <div class="icon-box"><i class="ri-lightbulb-flash-line"></i></div>
+          <h4>Innovation</h4>
+          <p>
+            We continuously evolve our platform with cutting-edge features to
+            meet changing needs.
+          </p>
+        </div>
+
+        <div class="value-card">
+          <div class="icon-box"><i class="ri-user-heart-line"></i></div>
+          <h4>User-Centric</h4>
+          <p>
+            Every feature is designed with the end user in mind—simple,
+            intuitive, and powerful.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta-section">
+      <h2>Ready to Transform Your Internship Program?</h2>
+      <p>
+        Join leading institutions using Shramic ERP to manage internships
+        efficiently and professionally.
+      </p>
+      <a href="{{ url_for('register') }}" class="btn btn-white">
+        Get Started Today <i class="ri-arrow-right-line"></i>
+      </a>
+    </div>
+
+    <div
+      style="
+        background: white;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 2rem 0;
+        text-align: center;
+      "
+    >
+      <p style="color: #94a3b8; font-size: 0.9rem">
+        &copy; 2026 Shramic ERP. All rights reserved.
+      </p>
+    </div>
+  </body>
+</html>

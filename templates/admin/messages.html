@@ -1,0 +1,128 @@
+{% extends "admin/base.html" %} {% block title %}Messages{% endblock %} {% block
+page_title %}Communication Center{% endblock %} {% block content %}
+<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem">
+  <!-- Compose Section -->
+  <div class="card" style="height: fit-content">
+    <h3 style="margin-bottom: 1.5rem">
+      <i class="ri-edit-line"></i> Send Message
+    </h3>
+    <form action="{{ url_for('admin_messages') }}" method="POST">
+      <div style="margin-bottom: 1rem">
+        <label style="display: block; font-size: 0.85rem; margin-bottom: 0.5rem"
+          >Recipient</label
+        >
+        <select
+          name="recipient_id"
+          class="btn-outline"
+          style="width: 100%; padding: 0.6rem; border-radius: 6px"
+        >
+          <option value="">Select Intern</option>
+          {% for intern in interns %}
+          <option value="{{ intern.id }}">
+            {{ intern.full_name }} ({{ intern.intern_id }})
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div style="margin-bottom: 1rem">
+        <label
+          style="
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+          "
+        >
+          <input type="checkbox" name="is_broadcast" /> Broadcast to ALL Interns
+        </label>
+      </div>
+
+      <div style="margin-bottom: 1rem">
+        <label style="display: block; font-size: 0.85rem; margin-bottom: 0.5rem"
+          >Subject</label
+        >
+        <input
+          type="text"
+          name="subject"
+          required
+          class="btn-outline"
+          style="width: 100%; padding: 0.6rem; border-radius: 6px"
+        />
+      </div>
+
+      <div style="margin-bottom: 1.5rem">
+        <label style="display: block; font-size: 0.85rem; margin-bottom: 0.5rem"
+          >Message Content</label
+        >
+        <textarea
+          name="content"
+          rows="5"
+          required
+          class="btn-outline"
+          style="width: 100%; padding: 0.6rem; border-radius: 6px; resize: none"
+        ></textarea>
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+        style="width: 100%; justify-content: center"
+      >
+        <i class="ri-send-plane-fill"></i> Send Message
+      </button>
+    </form>
+  </div>
+
+  <!-- History Section -->
+  <div class="card">
+    <h3 style="margin-bottom: 1.5rem">Sent Messages History</h3>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>To</th>
+            <th>Subject</th>
+            <th>Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for msg in sent_messages %}
+          <tr>
+            <td>
+              {% if msg.is_broadcast %}
+              <span class="badge badge-neutral"
+                ><i class="ri-broadcast-line"></i> Everyone</span
+              >
+              {% else %}
+              <div style="font-weight: 500">{{ msg.recipient_name }}</div>
+              <div style="font-size: 0.7rem; color: var(--text-light)">
+                {{ msg.intern_id }}
+              </div>
+              {% endif %}
+            </td>
+            <td>{{ msg.subject }}</td>
+            <td style="font-size: 0.8rem; color: var(--text-light)">
+              {{ msg.created_at }}
+            </td>
+            <td>
+              {% if msg.is_read %}
+              <span style="color: var(--success); font-size: 0.8rem"
+                ><i class="ri-check-double-line"></i> Read</span
+              >
+              {% else %}
+              <span style="color: var(--text-light); font-size: 0.8rem"
+                ><i class="ri-check-line"></i> Sent</span
+              >
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

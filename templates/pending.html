@@ -1,0 +1,140 @@
+{% extends "base.html" %} {% block title %}Pending Approval - Shramic ERP{%
+endblock %} {% block extra_css %}
+<style>
+  .pending-container {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 24px;
+  }
+
+  .pending-card {
+    background: white;
+    border-radius: 24px;
+    padding: 60px 48px;
+    max-width: 600px;
+    text-align: center;
+    box-shadow: var(--shadow-xl);
+    animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  @keyframes bounceIn {
+    0% {
+      opacity: 0;
+      transform: scale(0.3);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    70% {
+      transform: scale(0.9);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .pending-icon {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 32px;
+    background: var(--gradient-2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+    color: white;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 rgba(253, 121, 168, 0.7);
+    }
+    50% {
+      transform: scale(1.05);
+      box-shadow: 0 0 0 20px rgba(253, 121, 168, 0);
+    }
+  }
+
+  .pending-card h1 {
+    font-family: "Montserrat", sans-serif;
+    font-size: 36px;
+    font-weight: 900;
+    margin-bottom: 16px;
+    color: var(--dark);
+  }
+
+  .pending-card p {
+    font-size: 18px;
+    color: var(--text-light);
+    line-height: 1.8;
+    margin-bottom: 32px;
+  }
+
+  .info-box {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 24px;
+    border-radius: 16px;
+    margin-bottom: 32px;
+    text-align: left;
+  }
+
+  .info-box h3 {
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--dark);
+  }
+
+  .info-box ul {
+    margin-left: 24px;
+    color: var(--text-light);
+  }
+
+  .info-box li {
+    margin-bottom: 8px;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="pending-container">
+  <div class="pending-card">
+    <div class="pending-icon">
+      <i class="fas fa-hourglass-half"></i>
+    </div>
+
+    <h1>Application Pending</h1>
+    <p>
+      Your account is awaiting approval from Shramic Admin. You'll receive an
+      email notification once your account is approved.
+    </p>
+
+    <div class="info-box">
+      <h3><i class="fas fa-info-circle"></i> What happens next?</h3>
+      <ul>
+        <li>Our admin team will review your application</li>
+        <li>You'll receive an email notification within 24-48 hours</li>
+        <li>Once approved, you can access your dashboard</li>
+        <li>Start your internship journey with Shramic!</li>
+      </ul>
+    </div>
+
+    <div style="display: flex; gap: 16px; justify-content: center">
+      <a href="{{ url_for('logout') }}" class="btn btn-secondary">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </a>
+      <button onclick="location.reload()" class="btn btn-primary">
+        <i class="fas fa-sync-alt"></i> Refresh Status
+      </button>
+    </div>
+
+    <p style="margin-top: 32px; font-size: 14px; color: var(--text-light)">
+      Your Intern ID: <strong>{{ current_user.intern_id }}</strong>
+    </p>
+  </div>
+</div>
+{% endblock %}

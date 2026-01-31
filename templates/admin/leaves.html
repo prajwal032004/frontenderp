@@ -1,0 +1,168 @@
+{% extends "admin/base.html" %} {% block title %}Leave Management{% endblock %}
+{% block page_title %}Leave Requests{% endblock %} {% block content %}
+<div class="card" style="margin-bottom: 2rem">
+  <div
+    style="
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    "
+  >
+    <div class="btn-group" style="display: flex; gap: 0.5rem">
+      <a
+        href="{{ url_for('admin_leaves', status='PENDING') }}"
+        class="btn {% if current_status == 'PENDING' %}btn-primary{% else %}btn-outline{% endif %}"
+      >
+        Pending
+      </a>
+      <a
+        href="{{ url_for('admin_leaves', status='APPROVED') }}"
+        class="btn {% if current_status == 'APPROVED' %}btn-primary{% else %}btn-outline{% endif %}"
+      >
+        Approved
+      </a>
+      <a
+        href="{{ url_for('admin_leaves', status='REJECTED') }}"
+        class="btn {% if current_status == 'REJECTED' %}btn-primary{% else %}btn-outline{% endif %}"
+      >
+        Rejected
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Intern</th>
+          <th>Type</th>
+          <th>Duration</th>
+          <th>Reason</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for leave in leave_requests %}
+        <tr>
+          <td>
+            <div style="display: flex; align-items: center; gap: 10px">
+              <img
+                src="{{ url_for('static', filename='uploads/profiles/' + leave.photo_url) if leave.photo_url else 'https://ui-avatars.com/api/?name=' + leave.full_name }}"
+                style="width: 32px; height: 32px; border-radius: 50%"
+              />
+              <div>
+                <div style="font-weight: 600">{{ leave.full_name }}</div>
+                <div style="font-size: 0.75rem; color: var(--text-light)">
+                  {{ leave.intern_id }}
+                </div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="badge badge-neutral">{{ leave.leave_type }}</span>
+          </td>
+          <td>
+            <div style="font-weight: 500">{{ leave.total_days }} Days</div>
+            <div style="font-size: 0.75rem; color: var(--text-light)">
+              {{ leave.start_date }} to {{ leave.end_date }}
+            </div>
+          </td>
+          <td
+            style="
+              max-width: 200px;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            "
+            title="{{ leave.reason }}"
+          >
+            {{ leave.reason }}
+          </td>
+          <td>
+            <span
+              class="badge {% if leave.status == 'PENDING' %}badge-warning{% elif leave.status == 'APPROVED' %}badge-success{% else %}badge-danger{% endif %}"
+            >
+              {{ leave.status }}
+            </span>
+          </td>
+          <td>
+            {% if leave.status == 'PENDING' %}
+            <div style="display: flex; gap: 5px">
+              <form
+                action="{{ url_for('approve_leave', leave_id=leave.id) }}"
+                method="POST"
+                style="display: inline"
+              >
+                <input
+                  type="hidden"
+                  name="admin_comment"
+                  value="Approved by Admin"
+                />
+                <button
+                  type="submit"
+                  class="btn-icon"
+                  style="color: var(--success)"
+                  title="Approve"
+                >
+                  <i class="ri-check-line"></i>
+                </button>
+              </form>
+              <form
+                action="{{ url_for('reject_leave', leave_id=leave.id) }}"
+                method="POST"
+                style="display: inline"
+              >
+                <input
+                  type="text"
+                  name="admin_comment"
+                  placeholder="Reason"
+                  required
+                  style="
+                    padding: 2px 5px;
+                    font-size: 0.7rem;
+                    width: 80px;
+                    border: 1px solid var(--border);
+                    border-radius: 4px;
+                  "
+                />
+                <button
+                  type="submit"
+                  class="btn-icon"
+                  style="color: var(--danger)"
+                  title="Reject"
+                >
+                  <i class="ri-close-line"></i>
+                </button>
+              </form>
+            </div>
+            {% else %}
+            <span style="font-size: 0.8rem; color: var(--text-light)"
+              >Reviewed</span
+            >
+            {% endif %}
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td
+            colspan="6"
+            style="text-align: center; padding: 3rem; color: var(--text-light)"
+          >
+            <i
+              class="ri-inbox-line"
+              style="font-size: 2rem; display: block; margin-bottom: 0.5rem"
+            ></i>
+            No leave requests found in this category.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

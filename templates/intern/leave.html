@@ -1,0 +1,430 @@
+{% extends "intern/base.html" %} {% block title %}Leave Requests{% endblock %}
+{% block extra_head %}
+<style>
+  /* Stats Row */
+  .leave-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: var(--glass-surface);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: 0.3s;
+  }
+  .stat-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .stat-icon {
+    position: absolute;
+    right: -10px;
+    top: -10px;
+    font-size: 4rem;
+    opacity: 0.1;
+    transform: rotate(15deg);
+  }
+
+  .stat-val {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-main);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 5px;
+  }
+
+  /* Form Section */
+  .form-container {
+    background: var(--glass-surface);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 3rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .glass-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .glass-input,
+  .glass-select,
+  .glass-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--glass-border);
+    color: var(--text-main);
+    font-size: 1rem;
+    transition: 0.3s;
+  }
+  .glass-input:focus,
+  .glass-select:focus,
+  .glass-textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 10px var(--primary-glow);
+    outline: none;
+  }
+
+  /* Specific for date inputs to look consistent */
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+  }
+
+  .btn-submit {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--primary), #8b5cf6);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 4px 15px var(--primary-glow);
+  }
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px var(--primary-glow);
+  }
+
+  /* Table Section */
+  .history-card {
+    background: var(--glass-surface);
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    overflow: hidden;
+    padding: 1rem;
+  }
+
+  .leave-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .leave-table th {
+    text-align: left;
+    padding: 1rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .leave-table td {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+    font-size: 0.95rem;
+  }
+  .leave-table tr:last-child td {
+    border-bottom: none;
+  }
+  .leave-table tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  .st-APPROVED {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--success);
+    border: 1px solid var(--success);
+  }
+  .st-PENDING {
+    background: rgba(245, 158, 11, 0.2);
+    color: var(--warning);
+    border: 1px solid var(--warning);
+  }
+  .st-REJECTED {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--danger);
+    border: 1px solid var(--danger);
+  }
+
+  @media (max-width: 900px) {
+    .leave-stats {
+      grid-template-columns: 1fr 1fr;
+    }
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<div style="max-width: 1100px; margin: 0 auto">
+  <div style="margin-bottom: 2rem">
+    <h1 style="font-size: 2rem; font-weight: 700; color: var(--text-main)">
+      Request Leave
+    </h1>
+    <p style="color: var(--text-muted)">
+      Manage your time off and track request status.
+    </p>
+  </div>
+
+  <!-- Stats Overview -->
+  <!-- Note: Assuming you might pass these stats from backend later. Using placeholders or simple counts from loop if available. -->
+  <div class="leave-stats">
+    <div class="stat-card">
+      <i class="fas fa-check-circle stat-icon"></i>
+      <div class="stat-val" style="color: var(--success)">
+        {{ leave_requests|selectattr('status', 'equalto',
+        'APPROVED')|list|length }}
+      </div>
+      <div class="stat-label">Approved</div>
+    </div>
+    <div class="stat-card">
+      <i class="fas fa-clock stat-icon"></i>
+      <div class="stat-val" style="color: var(--warning)">
+        {{ leave_requests|selectattr('status', 'equalto', 'PENDING')|list|length
+        }}
+      </div>
+      <div class="stat-label">Pending</div>
+    </div>
+    <div class="stat-card">
+      <i class="fas fa-times-circle stat-icon"></i>
+      <div class="stat-val" style="color: var(--danger)">
+        {{ leave_requests|selectattr('status', 'equalto',
+        'REJECTED')|list|length }}
+      </div>
+      <div class="stat-label">Rejected</div>
+    </div>
+    <div class="stat-card">
+      <i class="fas fa-calendar-alt stat-icon"></i>
+      <div class="stat-val" style="color: var(--primary)">
+        {{ leave_requests|length }}
+      </div>
+      <div class="stat-label">Total Requests</div>
+    </div>
+  </div>
+
+  <!-- Request Form -->
+  <div class="form-container">
+    <h3
+      style="
+        margin-bottom: 1.5rem;
+        font-size: 1.3rem;
+        font-weight: 700;
+        border-bottom: 1px solid var(--glass-border);
+        padding-bottom: 1rem;
+      "
+    >
+      <i
+        class="fas fa-edit"
+        style="color: var(--primary); margin-right: 10px"
+      ></i>
+      New Request
+    </h3>
+
+    <form method="POST" action="{{ url_for('intern_leave') }}">
+      <div class="form-grid">
+        <div>
+          <label class="glass-label">Leave Type</label>
+          <select name="leave_type" required class="glass-select">
+            <option value="" style="background: #1e293b">Select Type...</option>
+            <option value="Sick" style="background: #1e293b">Sick Leave</option>
+            <option value="Casual" style="background: #1e293b">
+              Casual Leave
+            </option>
+            <option value="Emergency" style="background: #1e293b">
+              Emergency
+            </option>
+            <option value="Other" style="background: #1e293b">Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="glass-label">Reason</label>
+          <input
+            type="text"
+            name="reason"
+            required
+            class="glass-input"
+            placeholder="Brief reason for leave..."
+          />
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div>
+          <label class="glass-label">Start Date</label>
+          <input
+            type="date"
+            name="start_date"
+            id="start_date"
+            required
+            class="glass-input"
+          />
+        </div>
+        <div>
+          <label class="glass-label">End Date</label>
+          <input
+            type="date"
+            name="end_date"
+            id="end_date"
+            required
+            class="glass-input"
+          />
+        </div>
+      </div>
+
+      <div
+        style="
+          background: rgba(245, 158, 11, 0.1);
+          border: 1px solid rgba(245, 158, 11, 0.3);
+          padding: 1rem;
+          border-radius: 10px;
+          margin-bottom: 1.5rem;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        "
+      >
+        <i
+          class="fas fa-info-circle"
+          style="color: var(--warning); font-size: 1.2rem"
+        ></i>
+        <div>
+          <strong
+            style="color: var(--warning); display: block; font-size: 0.9rem"
+            >Total Duration: <span id="duration-span">0</span> Days</strong
+          >
+          <span style="font-size: 0.8rem; color: var(--text-muted)"
+            >Calculated automatically based on dates selected.</span
+          >
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit">Submit Request</button>
+    </form>
+  </div>
+
+  <!-- History Table -->
+  <h3 style="margin-bottom: 1rem; font-weight: 700; color: var(--text-main)">
+    Request History
+  </h3>
+  <div class="history-card">
+    <div style="overflow-x: auto">
+      <table class="leave-table">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Dates</th>
+            <th>Days</th>
+            <th>Status</th>
+            <th>Reason</th>
+            <th>Applied On</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for leave in leave_requests %}
+          <tr>
+            <td>
+              <span style="font-weight: 600; color: var(--primary)"
+                >{{ leave.leave_type }}</span
+              >
+            </td>
+            <td style="font-size: 0.9rem; color: var(--text-muted)">
+              {{ leave.start_date }}
+              <i
+                class="fas fa-arrow-right"
+                style="font-size: 0.7rem; margin: 0 5px"
+              ></i>
+              {{ leave.end_date }}
+            </td>
+            <td style="font-weight: 700">{{ leave.total_days }}</td>
+            <td>
+              <span class="status-badge st-{{ leave.status }}">
+                {{ leave.status }}
+              </span>
+            </td>
+            <td
+              style="
+                max-width: 200px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                color: var(--text-muted);
+              "
+            >
+              {{ leave.reason }}
+            </td>
+            <td style="font-size: 0.85rem; color: var(--text-muted)">
+              {{ leave.created_at[:10] }}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td
+              colspan="6"
+              style="
+                text-align: center;
+                padding: 3rem;
+                color: var(--text-muted);
+              "
+            >
+              No leave requests found.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Auto Calculate Duration
+  const startInput = document.getElementById("start_date");
+  const endInput = document.getElementById("end_date");
+  const durationSpan = document.getElementById("duration-span");
+
+  function calcDays() {
+    if (startInput.value && endInput.value) {
+      const start = new Date(startInput.value);
+      const end = new Date(endInput.value);
+      const diffTime = Math.abs(end - start);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+      if (!isNaN(diffDays) && diffDays > 0) {
+        durationSpan.innerText = diffDays;
+      } else {
+        durationSpan.innerText = 0;
+      }
+    }
+  }
+
+  startInput.addEventListener("change", calcDays);
+  endInput.addEventListener("change", calcDays);
+</script>
+{% endblock %}

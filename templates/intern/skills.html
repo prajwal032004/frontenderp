@@ -1,0 +1,209 @@
+{% extends "intern/base.html" %} {% block title %}My Skills{% endblock %} {%
+block extra_head %}
+<style>
+  .skill-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+  }
+
+  .add-skill-box {
+    background: var(--glass-surface);
+    padding: 2rem;
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    height: fit-content;
+  }
+
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .skill-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    position: relative;
+    transition: 0.3s;
+  }
+  .skill-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateY(-5px);
+  }
+
+  .verified-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: var(--success);
+    font-size: 1.2rem;
+  }
+
+  .skill-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 1rem;
+  }
+
+  .progress-track {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    border-radius: 10px;
+    background: var(--primary);
+  }
+
+  /* Form Styles */
+  .range-wrap {
+    margin: 2rem 0;
+  }
+  input[type="range"] {
+    width: 100%;
+    accent-color: var(--primary);
+    cursor: pointer;
+  }
+
+  @media (max-width: 800px) {
+    .skill-container {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="skill-container">
+  <!-- Left: Add New Form -->
+  <div class="add-skill-box">
+    <h3 style="margin-bottom: 1.5rem; font-weight: 700">Add New Skill</h3>
+    <form action="{{ url_for('intern_skills') }}" method="POST">
+      <div style="margin-bottom: 1.5rem">
+        <label
+          style="
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+          "
+          >Skill Name</label
+        >
+        <input
+          type="text"
+          name="skill_name"
+          required
+          placeholder="e.g. Python, Design..."
+          style="
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: white;
+          "
+        />
+      </div>
+
+      <div class="range-wrap">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+          "
+        >
+          <label
+            style="
+              color: var(--text-muted);
+              font-size: 0.8rem;
+              font-weight: 600;
+            "
+            >Proficiency</label
+          >
+          <span id="range-val" style="color: var(--primary); font-weight: 700"
+            >50%</span
+          >
+        </div>
+        <input
+          type="range"
+          name="proficiency_level"
+          min="1"
+          max="100"
+          value="50"
+          oninput="
+            document.getElementById('range-val').innerText = this.value + '%'
+          "
+        />
+      </div>
+
+      <button
+        type="submit"
+        style="
+          width: 100%;
+          padding: 12px;
+          background: var(--primary);
+          color: white;
+          border: none;
+          border-radius: 10px;
+          font-weight: 700;
+          cursor: pointer;
+          box-shadow: 0 4px 15px var(--primary-glow);
+        "
+      >
+        Add Skill
+      </button>
+    </form>
+  </div>
+
+  <!-- Right: List -->
+  <div class="skills-grid">
+    {% for skill in skills %}
+    <div class="skill-card">
+      {% if skill.verified %}
+      <div class="verified-badge" title="Verified by Admin">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      {% endif %}
+
+      <div class="skill-name">{{ skill.skill_name }}</div>
+
+      <div class="progress-track">
+        <div
+          class="progress-bar"
+          style="width: {{ skill.proficiency_level }}%"
+        ></div>
+      </div>
+      <div
+        style="
+          margin-top: 8px;
+          font-size: 0.8rem;
+          color: var(--text-muted);
+          display: flex;
+          justify-content: space-between;
+        "
+      >
+        <span>Proficiency</span>
+        <span>{{ skill.proficiency_level }}%</span>
+      </div>
+    </div>
+    {% else %}
+    <div
+      style="
+        grid-column: 1/-1;
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-muted);
+      "
+    >
+      <p>No skills added yet.</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

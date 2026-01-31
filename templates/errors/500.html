@@ -1,0 +1,47 @@
+{% extends "base.html" %} {% block title %}500 - Server Error{% endblock %} {%
+block content %}
+<div
+  style="
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 24px;
+  "
+>
+  <div>
+    <h1
+      style="
+        font-size: 120px;
+        font-weight: 900;
+        background: var(--gradient-2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 24px;
+      "
+    >
+      500
+    </h1>
+    <h2
+      style="
+        font-size: 36px;
+        font-weight: 700;
+        margin-bottom: 16px;
+        color: var(--dark);
+      "
+    >
+      Internal Server Error
+    </h2>
+    <p style="font-size: 18px; color: var(--text-light); margin-bottom: 40px">
+      Something went wrong. Please try again later.
+    </p>
+    <a
+      href="/"
+      class="btn btn-primary"
+      style="font-size: 18px; padding: 16px 48px"
+      ><i class="fas fa-home"></i> Go Home</a
+    >
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,310 @@
+{% extends "admin/base.html" %} {% block page_title %}Attendance Monitor{%
+endblock %} {% block content %}
+<style>
+  /* Stats Row */
+  .att-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .stat-box {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    text-align: center;
+  }
+  .stat-val {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+  .stat-lbl {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Tables */
+  .attendance-row td {
+    padding: 1rem;
+    vertical-align: middle;
+  }
+  .time-badge {
+    font-family: "Space Grotesk", monospace;
+    background: #f1f5f9;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--text-main);
+  }
+
+  /* Absentee Avatars */
+  .absent-grid {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .absent-item {
+    position: relative;
+    cursor: pointer;
+  }
+  .absent-item img {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    transition: 0.2s;
+  }
+  .absent-item:hover img {
+    transform: translateY(-3px);
+    border-color: var(--danger);
+  }
+  .absent-item:hover::after {
+    content: attr(data-name);
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: black;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    z-index: 10;
+  }
+</style>
+
+<!-- 1. Daily Summary Stats -->
+<div class="att-stats">
+  <div class="stat-box">
+    <div class="stat-val" style="color: var(--success)">
+      {{ today_attendance|length }}
+    </div>
+    <div class="stat-lbl">Present Today</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-val" style="color: var(--danger)">
+      {{ absent_today|length }}
+    </div>
+    <div class="stat-lbl">Absent</div>
+  </div>
+  <div class="stat-box">
+    <!-- Calculate Average Hours for Today -->
+    {% set total_hrs = namespace(value=0) %} {% for r in today_attendance %}{%
+    if r.work_hours %}{% set total_hrs.value = total_hrs.value + r.work_hours
+    %}{% endif %}{% endfor %}
+    <div class="stat-val" style="color: var(--primary)">
+      {{ (total_hrs.value / today_attendance|length)|round(1) if
+      today_attendance|length > 0 else 0 }}
+    </div>
+    <div class="stat-lbl">Avg Hours</div>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem">
+  <!-- 2. Today's Attendance Log -->
+  <div class="card">
+    <div
+      style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      "
+    >
+      <h3>
+        Today's Activity
+        <span
+          style="font-weight: 400; color: var(--text-light); font-size: 0.9rem"
+          >({{ date_filter }})</span
+        >
+      </h3>
+
+      <div style="display: flex; gap: 10px">
+        <form
+          method="GET"
+          style="display: flex; align-items: center; gap: 10px"
+        >
+          <input
+            type="date"
+            name="date"
+            value="{{ date_filter }}"
+            onchange="this.form.submit()"
+            style="
+              padding: 0.5rem;
+              border: 1px solid var(--border);
+              border-radius: 8px;
+            "
+          />
+        </form>
+        <a
+          href="{{ url_for('export_attendance_csv', month=date_filter[:7]) }}"
+          class="btn btn-outline"
+          style="padding: 0.5rem 1rem; font-size: 0.85rem"
+        >
+          <i class="ri-download-cloud-line"></i> CSV
+        </a>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Intern</th>
+            <th>Check In</th>
+            <th>Out</th>
+            <th>Hours</th>
+            <th>Location</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for record in today_attendance %}
+          <tr class="attendance-row">
+            <td>
+              <div style="display: flex; align-items: center; gap: 10px">
+                <img
+                  src="{{ url_for('static', filename='uploads/profiles/' + record.photo_url) if record.photo_url else 'https://ui-avatars.com/api/?name=' + record.full_name }}"
+                  style="
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    object-fit: cover;
+                  "
+                />
+                <div>
+                  <div style="font-weight: 600">{{ record.full_name }}</div>
+                  <div style="font-size: 0.75rem; color: var(--text-secondary)">
+                    {{ record.intern_id }}
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="time-badge"
+                >{{ record.check_in_time.split(' ')[1] }}</span
+              >
+            </td>
+            <td>
+              {% if record.check_out_time %}
+              <span class="time-badge"
+                >{{ record.check_out_time.split(' ')[1] }}</span
+              >
+              {% else %}
+              <span
+                style="
+                  color: var(--success);
+                  font-size: 0.8rem;
+                  font-weight: 600;
+                "
+                >● Active</span
+              >
+              {% endif %}
+            </td>
+            <td style="font-weight: 700; color: var(--text-main)">
+              {{ record.work_hours if record.work_hours else '-' }}
+            </td>
+            <td style="font-size: 0.85rem; color: var(--text-secondary)">
+              <i class="ri-map-pin-line"></i> {{ record.location or 'Remote' }}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td
+              colspan="5"
+              style="
+                text-align: center;
+                padding: 3rem;
+                color: var(--text-light);
+              "
+            >
+              No attendance records for this date.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 3. Absentee List -->
+  <div style="display: flex; flex-direction: column; gap: 1.5rem">
+    <div class="card">
+      <h3 style="margin-bottom: 1rem; color: var(--danger)">Absent Today</h3>
+      {% if absent_today %}
+      <div class="absent-grid">
+        {% for user in absent_today %}
+        <div class="absent-item" data-name="{{ user.full_name }}">
+          <a href="{{ url_for('admin_intern_detail', intern_id=user.id) }}">
+            <img
+              src="{{ url_for('static', filename='uploads/profiles/' + user.photo_url) if user.photo_url else 'https://ui-avatars.com/api/?name=' + user.full_name }}"
+              alt="{{ user.full_name }}"
+            />
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div style="text-align: center; padding: 2rem; color: var(--success)">
+        <i class="ri-check-double-line" style="font-size: 2rem"></i>
+        <p style="margin-top: 0.5rem; font-size: 0.9rem">100% Attendance!</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Monthly Summary Mini-Table -->
+    <div class="card">
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1rem;
+        "
+      >
+        <h3>Monthly Leaders</h3>
+        <a
+          href="{{ url_for('export_attendance_summary_csv') }}"
+          style="font-size: 0.8rem; color: var(--primary)"
+          >Export All</a
+        >
+      </div>
+      <div class="table-container">
+        <table style="font-size: 0.85rem">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th style="text-align: right">Days</th>
+              <th style="text-align: right">Avg Hrs</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for summary in monthly_summary[:5] %}
+            <tr>
+              <td style="font-weight: 600">{{ summary.full_name }}</td>
+              <td style="text-align: right">{{ summary.days_present }}</td>
+              <td
+                style="
+                  text-align: right;
+                  color: var(--primary);
+                  font-weight: 700;
+                "
+              >
+                {{ summary.avg_hours|round(1) }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

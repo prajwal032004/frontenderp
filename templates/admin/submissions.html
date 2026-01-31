@@ -1,0 +1,104 @@
+{% extends "admin/base.html" %} {% block page_title %}Submission Reviews{%
+endblock %} {% block content %}
+<div class="card" style="padding: 0">
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Candidate</th>
+          <th>Task Details</th>
+          <th>Submitted At</th>
+          <th>Deliverable</th>
+          <th style="text-align: right">Review</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sub in submissions %}
+        <tr>
+          <td>
+            <div style="display: flex; align-items: center; gap: 10px">
+              <img
+                src="{{ url_for('static', filename='uploads/profiles/' + sub.photo_url) if sub.photo_url else 'https://ui-avatars.com/api/?name=' + sub.full_name }}"
+                style="
+                  width: 36px;
+                  height: 36px;
+                  border-radius: 50%;
+                  object-fit: cover;
+                "
+              />
+              <div>
+                <div style="font-weight: 600">{{ sub.full_name }}</div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary)">
+                  {{ sub.intern_id }}
+                </div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div style="font-weight: 500">{{ sub.task_title }}</div>
+          </td>
+          <td style="color: var(--text-light); font-size: 0.85rem">
+            {{ sub.submitted_at }}
+          </td>
+          <td>
+            {% if sub.file_url %}
+            <a
+              href="{{ url_for('uploaded_file', filename='submissions/' + sub.file_url) }}"
+              target="_blank"
+              class="btn btn-outline"
+              style="padding: 0.4rem 0.8rem; font-size: 0.8rem"
+            >
+              <i class="ri-download-line"></i> Download
+            </a>
+            {% else %}
+            <span style="color: var(--text-light); font-style: italic"
+              >Text Only</span
+            >
+            {% endif %}
+          </td>
+          <td style="text-align: right">
+            <div style="display: flex; justify-content: flex-end; gap: 8px">
+              <form
+                action="{{ url_for('approve_submission', submission_id=sub.id) }}"
+                method="POST"
+              >
+                <button
+                  class="btn btn-primary"
+                  style="
+                    background: var(--success);
+                    padding: 0.4rem 0.8rem;
+                    font-size: 0.8rem;
+                  "
+                >
+                  <i class="ri-check-line"></i> Accept
+                </button>
+              </form>
+              <form
+                action="{{ url_for('reject_submission', submission_id=sub.id) }}"
+                method="POST"
+              >
+                <button
+                  class="btn btn-danger"
+                  style="padding: 0.4rem 0.8rem; font-size: 0.8rem"
+                >
+                  <i class="ri-close-line"></i> Reject
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td
+            colspan="5"
+            style="text-align: center; padding: 3rem; color: var(--text-light)"
+          >
+            No pending submissions to review.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

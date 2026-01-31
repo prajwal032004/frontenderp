@@ -1,0 +1,110 @@
+{% extends "admin/base.html" %} {% block title %}Manage Certificates{% endblock
+%} {% block content %}
+<div
+  style="
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  "
+>
+  <div>
+    <h2 style="font-size: 1.8rem; font-weight: 700">Intern Certificates</h2>
+    <p style="color: var(--text-secondary)">
+      Review, issue, or retract completion credentials
+    </p>
+  </div>
+
+  <form
+    action="{{ url_for('admin_generate_all_certificates') }}"
+    method="POST"
+    onsubmit="
+      return confirm('Generate certificates for all eligible interns?');
+    "
+  >
+    <button class="btn btn-primary">
+      <i class="ri-magic-line"></i> Generate All Pending
+    </button>
+  </form>
+</div>
+
+<div class="card">
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Intern Name</th>
+          <th>USN</th>
+          <th>Department</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for intern in interns %}
+        <tr>
+          <td>
+            <div style="font-weight: 700">{{ intern.full_name }}</div>
+            <div style="font-size: 0.75rem; color: var(--text-secondary)">
+              ID: {{ intern.intern_id }}
+            </div>
+          </td>
+          <td>{{ intern.usn }}</td>
+          <td>{{ intern.department }}</td>
+          <td>
+            {% if intern.cert_id %}
+            <span class="badge badge-success">Issued</span>
+            {% else %}
+            <span class="badge" style="background: #f1f5f9; color: #64748b"
+              >Not Issued</span
+            >
+            {% endif %}
+          </td>
+          <td>
+            {% if intern.cert_id %}
+            <div style="display: flex; gap: 8px">
+              <!-- View Button -->
+              <a
+                href="{{ url_for('admin_view_certificate', cert_id=intern.cert_id) }}"
+                class="btn btn-outline btn-sm"
+              >
+                <i class="ri-eye-line"></i> View
+              </a>
+
+              <!-- Revoke Button -->
+              <form
+                action="{{ url_for('admin_delete_certificate', cert_id=intern.cert_id) }}"
+                method="POST"
+                onsubmit="return confirm('REVOKE CERTIFICATE?');"
+              >
+                <button
+                  class="btn btn-sm"
+                  style="
+                    background: rgba(239, 68, 68, 0.1);
+                    color: #ef4444;
+                    border: 1px solid rgba(239, 68, 68, 0.2);
+                  "
+                >
+                  <i class="ri-delete-bin-line"></i> Revoke
+                </button>
+              </form>
+            </div>
+            {% else %}
+            <!-- Generate Button -->
+            <form
+              action="{{ url_for('generate_certificate', user_id=intern.id) }}"
+              method="POST"
+            >
+              <button class="btn btn-primary btn-sm">
+                <i class="ri-award-line"></i> Generate
+              </button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

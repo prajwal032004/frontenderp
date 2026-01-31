@@ -1,0 +1,170 @@
+{% extends "intern/base.html" %} {% block title %}My Certificates{% endblock %}
+{% block page_title %}Official Certificates{% endblock %} {% block extra_head %}
+<style>
+  .cert-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  .cert-card {
+    padding: 2rem;
+    border-radius: 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--glass-border);
+  }
+
+  .cert-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--primary);
+    background: var(--glass-highlight);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  }
+
+  .cert-icon-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+  }
+
+  .cert-type {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .cert-meta {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  .btn-view-cert {
+    width: 100%;
+    padding: 12px;
+    background: var(--primary);
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: 0.3s;
+  }
+
+  .btn-view-cert:hover {
+    box-shadow: 0 0 20px var(--primary-glow);
+    transform: scale(1.02);
+  }
+
+  /* Empty State Styling */
+  .empty-state-container {
+    text-align: center;
+    padding: 6rem 2rem;
+    background: var(--glass-surface);
+    border-radius: 24px;
+    border: 1px dashed var(--glass-border);
+  }
+
+  .empty-icon {
+    font-size: 5rem;
+    color: var(--glass-border);
+    margin-bottom: 2rem;
+    display: block;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  .empty-title {
+    font-size: 1.8rem;
+    color: var(--text-main);
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+
+  .empty-desc {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container">
+  {% if certificates %}
+  <div class="cert-grid">
+    {% for cert in certificates %}
+    <div class="glass-panel cert-card">
+      <div class="cert-icon-circle">
+        <i class="fas fa-award"></i>
+      </div>
+
+      <h3 class="cert-type">{{ cert.certificate_type }}</h3>
+
+      <div class="cert-meta">
+        <div>
+          <i class="far fa-calendar-alt" style="width: 20px"></i> Issued: {{
+          cert.issue_date }}
+        </div>
+        <div>
+          <i class="fas fa-fingerprint" style="width: 20px"></i> ID: {{
+          cert.certificate_number }}
+        </div>
+        <div>
+          <i class="fas fa-triangle-exclamation" style="width: 20px"></i>
+          This is not an official certificate
+        </div>
+      </div>
+
+      <a
+        href="{{ url_for('intern_view_certificate', cert_id=cert.id) }}"
+        class="btn-view-cert"
+      >
+        <span>View Certificate</span>
+        <i class="fas fa-external-link-alt"></i>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <!-- THE "NO CERTIFICATE" VIEW -->
+  <div class="empty-state-container">
+    <i class="fas fa-file-signature empty-icon"></i>
+    <h2 class="empty-title">No Certificates Found</h2>
+    <p class="empty-desc">
+      <strong>Shramic Admin has not provided the certificate yet.</strong><br />
+      Certificates are typically issued upon successful completion of assigned
+      tasks and final internship review.& This is not official Certificate This
+      is for demo purposes only.
+    </p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

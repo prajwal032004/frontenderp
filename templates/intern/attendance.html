@@ -1,0 +1,269 @@
+{% extends "intern/base.html" %} {% block page_title %}Attendance{% endblock %}
+{% block extra_head %}
+<style>
+  .attendance-layout {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+  }
+
+  /* CLOCK CARD */
+  .clock-card {
+    text-align: center;
+    padding: 2rem;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .big-button {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: white;
+    transition: 0.3s;
+    margin: 2rem 0;
+    position: relative;
+  }
+  .btn-in {
+    background: radial-gradient(circle at 30% 30%, #4f46e5, #312e81);
+    box-shadow:
+      0 0 30px rgba(79, 70, 229, 0.4),
+      inset 0 0 20px rgba(255, 255, 255, 0.2);
+  }
+  .btn-out {
+    background: radial-gradient(circle at 30% 30%, #ef4444, #991b1b);
+    box-shadow:
+      0 0 30px rgba(239, 68, 68, 0.4),
+      inset 0 0 20px rgba(255, 255, 255, 0.2);
+  }
+  .big-button:hover {
+    transform: scale(1.05);
+  }
+  .big-button:active {
+    transform: scale(0.95);
+  }
+
+  .pulse-ring {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    animation: spin 10s linear infinite;
+  }
+  @keyframes spin {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* TABLE */
+  .history-card {
+    padding: 1.5rem;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .glass-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .glass-table th {
+    text-align: left;
+    padding: 1rem;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--glass-border);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+  }
+  .glass-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--glass-border);
+    color: var(--text-main);
+  }
+  .glass-table tr:last-child td {
+    border-bottom: none;
+  }
+  .glass-table tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  @media (max-width: 900px) {
+    .attendance-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="attendance-layout">
+  <!-- Action Side -->
+  <div class="glass-panel clock-card card-3d">
+    <h2 style="font-size: 2rem; margin-bottom: 0.5rem">{{ today_date }}</h2>
+    <div
+      id="live-clock"
+      style="font-family: monospace; font-size: 1.5rem; color: var(--primary)"
+    >
+      --:--:--
+    </div>
+
+    {% if not today_attendance %}
+    <button onclick="markAttendance()" class="big-button btn-in">
+      <div class="pulse-ring"></div>
+      <i
+        class="fas fa-fingerprint"
+        style="font-size: 3rem; margin-bottom: 10px"
+      ></i>
+      CHECK IN
+    </button>
+    {% elif not today_attendance.check_out_time %}
+    <button onclick="checkOut()" class="big-button btn-out">
+      <div class="pulse-ring"></div>
+      <i
+        class="fas fa-sign-out-alt"
+        style="font-size: 3rem; margin-bottom: 10px"
+      ></i>
+      CHECK OUT
+    </button>
+    {% else %}
+    <div
+      class="big-button"
+      style="
+        background: var(--glass-bg);
+        border: 2px solid var(--success);
+        box-shadow: none;
+        cursor: default;
+      "
+    >
+      <i
+        class="fas fa-check-circle"
+        style="font-size: 3rem; color: var(--success); margin-bottom: 10px"
+      ></i>
+      DONE
+    </div>
+    {% endif %}
+
+    <div style="display: flex; gap: 2rem; margin-top: 1rem">
+      <div>
+        <small style="color: var(--text-muted)">IN</small>
+        <div style="font-weight: 700">
+          {{ today_attendance.check_in_time[-8:] if today_attendance else
+          '--:--' }}
+        </div>
+      </div>
+      <div>
+        <small style="color: var(--text-muted)">OUT</small>
+        <div style="font-weight: 700">
+          {{ today_attendance.check_out_time[-8:] if today_attendance and
+          today_attendance.check_out_time else '--:--' }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Side -->
+  <div class="glass-panel history-card">
+    <div
+      style="
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+      "
+    >
+      <h3 style="font-weight: 600">Attendance History</h3>
+      <div style="display: flex; gap: 1rem; text-align: center">
+        <div>
+          <span style="font-weight: 700; color: var(--primary)"
+            >{{ attendance_this_month }}</span
+          >
+          <small style="color: var(--text-muted)">Days</small>
+        </div>
+        <div>
+          <span style="font-weight: 700; color: var(--warning)"
+            >{{ total_hours }}</span
+          >
+          <small style="color: var(--text-muted)">Hours</small>
+        </div>
+      </div>
+    </div>
+
+    <div style="overflow-x: auto">
+      <table class="glass-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>In</th>
+            <th>Out</th>
+            <th>Hrs</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for record in attendance_history %}
+          <tr>
+            <td>{{ record.date }}</td>
+            <td>{{ record.check_in_time[-8:] }}</td>
+            <td>
+              {{ record.check_out_time[-8:] if record.check_out_time else '-' }}
+            </td>
+            <td>{{ record.work_hours if record.work_hours else '-' }}</td>
+            <td>
+              <span
+                style="
+                  padding: 2px 8px;
+                  border-radius: 4px;
+                  background: rgba(16, 185, 129, 0.2);
+                  color: var(--success);
+                  font-size: 0.75rem;
+                "
+                >PRESENT</span
+              >
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  setInterval(() => {
+    document.getElementById("live-clock").innerText =
+      new Date().toLocaleTimeString();
+  }, 1000);
+
+  function markAttendance() {
+    if (!confirm("Confirm Check In?")) return;
+    fetch("{{ url_for('intern_mark_attendance') }}", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `location=Web Portal`,
+    })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success) location.reload();
+        else alert(d.message);
+      });
+  }
+
+  function checkOut() {
+    if (!confirm("Confirm Check Out?")) return;
+    fetch("{{ url_for('intern_checkout') }}", { method: "POST" })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success) location.reload();
+        else alert(d.message);
+      });
+  }
+</script>
+{% endblock %}
